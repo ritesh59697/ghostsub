@@ -172,7 +172,7 @@ GhostSub's payment module signs and broadcasts a micro-transfer on Sui via Tatum
 
 ```bash
 # 1. Clone & Navigate
-git clone https://github.com/your-username/ghostsub.git
+git clone https://github.com/ritesh59697/ghostsub.git
 cd ghostsub
 
 # 2. Install Dependencies
