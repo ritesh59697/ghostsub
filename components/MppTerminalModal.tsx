@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Terminal, ArrowRight, Zap, CheckCircle2, Copy, Check } from "lucide-react";
+import { X, Terminal, CheckCircle2, Copy, Check } from "lucide-react";
 
 interface MppTerminalModalProps {
   isOpen: boolean;
@@ -21,7 +21,7 @@ export function MppTerminalModal({ isOpen, onClose }: MppTerminalModalProps) {
   "headers": {
     "X-402-Payment-Required": "USDC/SUI",
     "X-402-Rate": "0.005 USDC per query",
-    "X-402-Recipient": "0x8f19ea3c7...92a1",
+    "X-402-Recipient": "0x8f19ea3c7b89d421...92a1",
     "X-Walrus-Memory-Ref": "wal_blob_984f88e100aa76c09b14"
   },
   "tx_block": {
@@ -39,74 +39,84 @@ export function MppTerminalModal({ isOpen, onClose }: MppTerminalModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
       <div 
-        className="relative w-full max-w-2xl rounded-2xl border border-white/10 bg-[#0b0d19] p-6 shadow-2xl overflow-hidden"
+        className="relative w-full max-w-2xl rounded-lg border border-zinc-800 bg-[#0c0d0e] p-6 text-zinc-100 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-400">
-              <Terminal className="h-4 w-4" />
-            </div>
+            <Terminal className="h-4 w-4 text-emerald-400" />
             <div>
-              <h3 className="font-display text-base font-bold text-white">
-                Sui Machine Payment Protocol (x402 / MPP) Terminal
+              <h3 className="text-sm font-semibold text-white">
+                Sui Machine Payment Protocol (x402 / MPP) Wire
               </h3>
-              <p className="text-xs text-white/50">Autonomous Agent-to-Service Settlement Wire</p>
+              <p className="text-xs text-zinc-400">Autonomous Agent-to-Service Settlement Payload</p>
             </div>
           </div>
 
           <button
-            type="button"
             onClick={onClose}
-            className="rounded-lg border border-white/10 p-1.5 text-white/60 hover:bg-white/5"
+            className="rounded p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Protocol Explanation */}
-        <div className="mt-4 rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-4 text-xs leading-relaxed text-indigo-200">
-          <div className="flex items-center gap-2 font-semibold text-indigo-300 mb-1">
-            <Zap className="h-4 w-4 text-indigo-400" />
-            How GhostSub uses Sui Agent Payments:
+        {/* Protocol Spec overview */}
+        <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
+          <div className="rounded border border-zinc-800 bg-zinc-900/60 p-2.5">
+            <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Protocol</div>
+            <div className="mt-0.5 font-mono text-zinc-200">HTTP 402 / MPP</div>
           </div>
-          Instead of paying a monthly $29.99 flat subscription, GhostSub sends signed HTTP 402 payment headers for each API query or compute-hour, settled instantly on Sui via Tatum RPC and logged directly into Walrus Memory.
+          <div className="rounded border border-zinc-800 bg-zinc-900/60 p-2.5">
+            <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Settlement</div>
+            <div className="mt-0.5 font-mono text-zinc-200">Sui Mainnet</div>
+          </div>
+          <div className="rounded border border-zinc-800 bg-zinc-900/60 p-2.5">
+            <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Gateway</div>
+            <div className="mt-0.5 font-mono text-zinc-200">Tatum RPC</div>
+          </div>
         </div>
 
         {/* Code Payload */}
         <div className="mt-4">
-          <div className="flex items-center justify-between bg-black/60 px-4 py-2 rounded-t-xl border border-b-0 border-white/10 text-xs text-white/50 font-mono">
-            <span>PACKET WIRE INSPECTOR</span>
+          <div className="flex items-center justify-between bg-zinc-950 px-3.5 py-2 rounded-t border border-zinc-800 border-b-0 text-xs text-zinc-400">
+            <span className="font-mono text-[11px]">x402-wire-packet.json</span>
             <button
-              type="button"
               onClick={copyPayload}
-              className="flex items-center gap-1 text-[11px] text-white/70 hover:text-white"
+              className="flex items-center gap-1 text-[11px] hover:text-white transition-colors"
             >
-              {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-              <span>{copied ? "Copied" : "Copy JSON"}</span>
+              {copied ? (
+                <>
+                  <Check className="h-3 w-3 text-emerald-400" />
+                  <span className="text-emerald-400 font-mono">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3 w-3" />
+                  <span className="font-mono">Copy</span>
+                </>
+              )}
             </button>
           </div>
-          <pre className="p-4 rounded-b-xl border border-white/10 bg-black/80 font-mono text-[11px] text-emerald-400 overflow-x-auto leading-relaxed">
+          <pre className="max-h-[300px] overflow-auto rounded-b border border-zinc-800 bg-zinc-950 p-3.5 font-mono text-xs leading-relaxed text-zinc-300 select-all">
             {samplePayload}
           </pre>
         </div>
 
         {/* Footer */}
-        <div className="mt-4 flex items-center justify-between pt-2">
-          <div className="flex items-center gap-2 text-xs text-white/50">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-            <span>Targeting $500 Best Use of Agent Payments (Sui)</span>
+        <div className="mt-5 flex items-center justify-between border-t border-zinc-800 pt-3.5 text-xs text-zinc-400">
+          <div className="flex items-center gap-1.5 text-emerald-400">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            <span>Eligible for $500 Agent Payments Bonus</span>
           </div>
-
           <button
-            type="button"
             onClick={onClose}
-            className="rounded-xl bg-white/10 px-4 py-2 text-xs font-semibold text-white hover:bg-white/20"
+            className="rounded border border-zinc-700 bg-zinc-800 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 transition-colors"
           >
-            Close Inspector
+            Close
           </button>
         </div>
       </div>

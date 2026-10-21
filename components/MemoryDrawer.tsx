@@ -8,11 +8,7 @@ import {
   Plus, 
   ExternalLink, 
   CheckCircle2, 
-  ShieldAlert, 
-  Zap, 
-  Clock, 
-  Sparkles,
-  ArrowRight
+  Clock 
 } from "lucide-react";
 import { MemoryEntry, Subscription } from "@/lib/types";
 
@@ -82,28 +78,26 @@ export function MemoryDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm transition-opacity">
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/80">
       <div 
-        className="relative flex h-full w-full max-w-2xl flex-col border-l border-white/10 bg-[#0c0e1c] p-6 shadow-2xl sm:p-8 overflow-y-auto"
+        className="relative flex h-full w-full max-w-xl flex-col border-l border-zinc-800 bg-[#0c0d0e] p-6 text-zinc-100 overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-white/10 pb-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
-              <Database className="h-5 w-5" />
-            </div>
+        <div className="flex items-start justify-between border-b border-zinc-800 pb-4">
+          <div className="flex items-center gap-2.5">
+            <Database className="h-4 w-4 text-emerald-400" />
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-display text-xl font-bold text-white">
+                <h2 className="text-sm font-semibold text-white">
                   Walrus Memory Ledger
                 </h2>
-                <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+                <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-mono text-emerald-400 border border-emerald-500/20">
                   Mainnet
                 </span>
               </div>
-              <p className="text-xs text-white/50">
-                {selectedSubscription ? selectedSubscription.name : "Global Agent Context Store"}
+              <p className="text-xs text-zinc-400 mt-0.5">
+                {selectedSubscription ? selectedSubscription.name : "Global Agent Context Store"} · {memories.length} Entries
               </p>
             </div>
           </div>
@@ -111,38 +105,38 @@ export function MemoryDrawer({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-white/10 p-2 text-white/60 hover:border-white/20 hover:bg-white/5"
+            className="rounded p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Semantic Search / Recall Form */}
-        <div className="mt-5">
+        <div className="mt-4">
           <form onSubmit={handleSemanticRecall} className="relative flex items-center">
-            <Search className="absolute left-3.5 h-4 w-4 text-white/40" />
+            <Search className="absolute left-3 h-3.5 w-3.5 text-zinc-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Ask Walrus Memory (e.g. 'Why was this switched to MPP?')"
-              className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-24 text-xs text-white placeholder-white/40 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+              placeholder="Query Walrus Memory (e.g. 'efficiency threshold breached')..."
+              className="w-full rounded border border-zinc-800 bg-zinc-950 py-2 pl-9 pr-20 text-xs text-zinc-200 placeholder-zinc-500 focus:border-zinc-600 focus:outline-none"
             />
             <button
               type="submit"
               disabled={isSearching}
-              className="absolute right-1.5 rounded-lg bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/30 disabled:opacity-50"
+              className="absolute right-1 rounded bg-zinc-800 px-2.5 py-1 text-[11px] font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-50 transition-colors"
             >
-              {isSearching ? "Searching…" : "Recall"}
+              {isSearching ? "Searching..." : "Recall"}
             </button>
           </form>
 
           {/* Preset query chips */}
           <div className="mt-2 flex flex-wrap gap-1.5">
             {[
-              "Why was rate converted?",
-              "What was the 5-day alert?",
-              "How much was saved?",
+              "efficiency threshold",
+              "Sui MPP stream",
+              "Inactivity warning",
             ].map((chip) => (
               <button
                 key={chip}
@@ -155,193 +149,178 @@ export function MemoryDrawer({
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ query: chip }),
                   })
-                    .then((r) => r.json())
+                    .then((res) => res.json())
                     .then((d) => setSearchResults(d.matches))
                     .finally(() => setIsSearching(false));
                 }}
-                className="rounded-md border border-white/5 bg-white/[0.03] px-2 py-0.5 text-[11px] text-white/60 hover:bg-white/10"
+                className="rounded border border-zinc-800 bg-zinc-900/60 px-2 py-0.5 text-[11px] text-zinc-400 hover:border-zinc-700 hover:text-zinc-200 transition-colors font-mono"
               >
-                {chip}
+                "{chip}"
               </button>
             ))}
-            {searchResults && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchResults(null);
-                  setSearchQuery("");
-                }}
-                className="text-[11px] text-rose-400 hover:underline ml-auto"
-              >
-                Clear Search
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Add Memory Action */}
-        <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-4">
-          <span className="text-xs font-semibold text-white/50">
-            {searchResults ? `SEMANTIC MATCHES (${searchResults.length})` : `CHRONOLOGICAL MEMORIES (${displayedMemories.length})`}
-          </span>
-
-          <button
-            type="button"
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300 hover:bg-emerald-500/20"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>Record New Memory</span>
-          </button>
-        </div>
-
-        {/* Add Memory Form Dropdown */}
-        {showAddForm && (
-          <form onSubmit={handleCreateMemory} className="mt-3 rounded-xl border border-emerald-500/30 bg-black/40 p-4">
-            <p className="text-xs font-medium text-emerald-300 mb-2">Record Memory on Walrus Mainnet</p>
-            <textarea
-              rows={2}
-              value={newContent}
-              onChange={(e) => setNewContent(e.target.value)}
-              placeholder="e.g. User logged in for 10 minutes to review analytics report..."
-              className="w-full rounded-lg border border-white/10 bg-white/5 p-2 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
-              required
-            />
-            <div className="mt-2 flex items-center justify-between">
-              <select
-                value={newType}
-                onChange={(e) => setNewType(e.target.value as any)}
-                className="rounded-lg border border-white/10 bg-black/60 px-2 py-1 text-xs text-white"
-              >
-                <option value="OBSERVATION">Observation</option>
-                <option value="ALERT">Alert</option>
-                <option value="POLICY_CHANGE">Policy Change</option>
-                <option value="PAYMENT_EVENT">Payment Event</option>
-              </select>
-
+        {/* Search Results if any */}
+        {searchResults && (
+          <div className="mt-4 rounded border border-zinc-800 bg-zinc-950 p-3">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-2 text-xs">
+              <span className="font-medium text-zinc-300">
+                Vector Recall Results ({searchResults.length})
+              </span>
               <button
-                type="submit"
-                disabled={isAddingMemory}
-                className="rounded-lg bg-emerald-500 px-3 py-1 text-xs font-semibold text-black hover:bg-emerald-400 disabled:opacity-50"
+                onClick={() => setSearchResults(null)}
+                className="text-[11px] text-zinc-500 hover:text-zinc-300"
               >
-                {isAddingMemory ? "Committing to Walrus…" : "Commit Memory"}
+                Clear
               </button>
             </div>
-          </form>
+            <div className="mt-2 space-y-2">
+              {searchResults.length === 0 ? (
+                <div className="py-3 text-center text-xs text-zinc-500">
+                  No semantic matches found for this query.
+                </div>
+              ) : (
+                searchResults.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded border border-zinc-800/80 bg-zinc-900/50 p-2.5 text-xs space-y-1"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-zinc-200">
+                        {item.memory.subscriptionName}
+                      </span>
+                      <span className="font-mono text-[10px] text-emerald-400">
+                        Match Score: {(item.relevanceScore * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <p className="text-zinc-400 leading-relaxed text-[11px]">
+                      {item.memory.content}
+                    </p>
+                    <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 pt-1">
+                      <span>Day {item.memory.day}</span>
+                      <span>{item.memory.walrusBlobId}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         )}
 
-        {/* Memory List */}
-        <div className="mt-4 flex-1 space-y-3">
-          {/* Display Search Results if active */}
-          {searchResults ? (
-            searchResults.map(({ memory, relevanceScore, matchedTerms }: any) => (
-              <div
-                key={memory.id}
-                className="relative rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.04] p-4 transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-                      Day {memory.day}
-                    </span>
-                    <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
-                      {Math.round(relevanceScore * 100)}% Match
-                    </span>
-                  </div>
-                  <span className="font-mono text-[10px] text-white/40">
-                    {memory.walrusBlobId.slice(0, 16)}…
-                  </span>
-                </div>
-
-                <p className="mt-2 text-xs font-medium leading-relaxed text-white">
-                  {memory.content}
-                </p>
-
-                {matchedTerms?.length > 0 && (
-                  <div className="mt-2 flex items-center gap-1">
-                    <span className="text-[10px] text-white/40">Keywords:</span>
-                    {matchedTerms.map((term: string) => (
-                      <span key={term} className="rounded bg-white/10 px-1 py-0.5 text-[10px] text-emerald-300">
-                        {term}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))
+        {/* Add Memory Button & Form */}
+        <div className="mt-4">
+          {!showAddForm ? (
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="flex w-full items-center justify-center gap-1.5 rounded border border-zinc-800 bg-zinc-900/40 py-2 text-xs font-medium text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Record New Memory to Walrus Mainnet</span>
+            </button>
           ) : (
-            displayedMemories.map((mem) => {
-              const isAlert = mem.type === "ALERT";
-              const isPolicy = mem.type === "POLICY_CHANGE";
-              const isPayment = mem.type === "PAYMENT_EVENT";
+            <form onSubmit={handleCreateMemory} className="rounded border border-zinc-800 bg-zinc-950 p-3 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-zinc-300">
+                  Commit Memory for {selectedSubscription?.name || "Global Agent"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowAddForm(false)}
+                  className="text-zinc-500 hover:text-zinc-300 text-xs"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              <textarea
+                value={newContent}
+                onChange={(e) => setNewContent(e.target.value)}
+                placeholder="Observation or telemetry note..."
+                rows={2}
+                className="w-full rounded border border-zinc-800 bg-zinc-900 p-2 text-xs text-zinc-200 placeholder-zinc-500 focus:border-zinc-600 focus:outline-none"
+              />
+
+              <div className="flex items-center justify-between">
+                <select
+                  value={newType}
+                  onChange={(e) => setNewType(e.target.value as any)}
+                  className="rounded border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-300 focus:outline-none"
+                >
+                  <option value="OBSERVATION">Observation</option>
+                  <option value="ALERT">Alert</option>
+                  <option value="POLICY_CHANGE">Policy Change</option>
+                  <option value="PAYMENT_EVENT">Payment Event</option>
+                </select>
+
+                <button
+                  type="submit"
+                  disabled={isAddingMemory || !newContent.trim()}
+                  className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50 transition-colors"
+                >
+                  {isAddingMemory ? "Signing..." : "Commit"}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+
+        {/* Memory Ledger Entries List */}
+        <div className="mt-4 flex-1 space-y-2">
+          <div className="flex items-center justify-between text-xs text-zinc-400 pb-1">
+            <span>Verified Blobs ({displayedMemories.length})</span>
+            <span className="font-mono text-[11px] text-zinc-500">Sorted by Timeline</span>
+          </div>
+
+          <div className="space-y-2">
+            {displayedMemories.map((mem) => {
+              const typeColor =
+                mem.type === "POLICY_CHANGE"
+                  ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+                  : mem.type === "ALERT"
+                  ? "text-amber-400 bg-amber-500/10 border-amber-500/20"
+                  : mem.type === "PAYMENT_EVENT"
+                  ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+                  : "text-zinc-400 bg-zinc-800/50 border-zinc-800";
 
               return (
                 <div
                   key={mem.id}
-                  className={`relative rounded-2xl border p-4 transition-all ${
-                    isPolicy
-                      ? "border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 via-black/40 to-transparent"
-                      : isAlert
-                      ? "border-amber-500/30 bg-amber-500/5"
-                      : isPayment
-                      ? "border-indigo-500/30 bg-indigo-500/5"
-                      : "border-white/10 bg-white/[0.02]"
-                  }`}
+                  className="rounded border border-zinc-800 bg-zinc-950 p-3 space-y-1.5"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] font-bold text-white/50">Day {mem.day}</span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase ${
-                          isPolicy
-                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                            : isAlert
-                            ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                            : isPayment
-                            ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-                            : "bg-white/10 text-white/60"
-                        }`}
-                      >
-                        {mem.type.replace("_", " ")}
-                      </span>
-                    </div>
-
-                    <span className="font-mono text-[10px] text-white/40">
-                      {mem.walrusBlobId.slice(0, 14)}…
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-zinc-200">
+                      {mem.subscriptionName}
+                    </span>
+                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-mono border ${typeColor}`}>
+                      {mem.type}
                     </span>
                   </div>
 
-                  <p className="mt-2 text-xs leading-relaxed text-white/90">
+                  <p className="text-xs text-zinc-400 leading-relaxed">
                     {mem.content}
                   </p>
 
-                  {/* Actions / Tx Link */}
-                  {(mem.actionTaken || mem.suiTxDigest) && (
-                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-white/5 pt-2.5 text-[11px]">
-                      {mem.actionTaken && (
-                        <span className="flex items-center gap-1 font-medium text-emerald-400">
-                          <CheckCircle2 className="h-3 w-3" />
-                          {mem.actionTaken}
-                        </span>
-                      )}
-
-                      {mem.suiTxDigest && (
-                        <a
-                          href={`https://suiscan.xyz/mainnet/tx/${mem.suiTxDigest}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 font-mono text-[10px] text-indigo-400 hover:underline"
-                        >
-                          <span>Sui Tx: {mem.suiTxDigest.slice(0, 10)}…</span>
-                          <ExternalLink className="h-2.5 w-2.5" />
-                        </a>
-                      )}
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-t border-zinc-900 pt-1.5 text-[10px] font-mono text-zinc-500">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3 w-3 text-zinc-600" />
+                      <span>Day {mem.day}</span>
                     </div>
-                  )}
+
+                    <a
+                      href={`https://walruscan.com/blob/${mem.walrusBlobId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-zinc-400 hover:text-zinc-200 transition-colors"
+                    >
+                      <span className="truncate max-w-[140px]">{mem.walrusBlobId}</span>
+                      <ExternalLink className="h-2.5 w-2.5" />
+                    </a>
+                  </div>
                 </div>
               );
-            })
-          )}
+            })}
+          </div>
         </div>
       </div>
     </div>
