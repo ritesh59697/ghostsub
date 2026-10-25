@@ -34,7 +34,7 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
     },
     {
       label: "SUI Address",
-      value: process.env.NEXT_PUBLIC_MEMWAL_ACCOUNT_ID || "Not configured",
+      value: process.env.NEXT_PUBLIC_SUI_ADDRESS || "Not configured",
       source: "Sui Mainnet",
     },
     {

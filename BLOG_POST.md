@@ -77,8 +77,9 @@ GhostSub is open-source and live:
 
 - **Interactive 30-Day Simulator**: Test the money shot live on the demo dashboard. Drag the timeline scrubber from Day 1 to Day 30 and watch the memory-driven policy shifts occur in real time.
 - **Tatum Account ID**: `act_6a08909eb9111b0e15836f63`
-- **Sui Address**: `0x7c529ea0a4d0c4fab1441b283aa9f61212da172b653f931a8ab273a241f56937`
-- **Walrus Agent ID**: `0x6b44917fec74720970b55577ceef7da3d95efc58`
-- **Verified Memories on Mainnet**: 14+ Entries
+- **Sui Address**: `0x332974af9e98313432b464caaaa15c2d63e98395c1447b87854c1b66d9e9d1f3`
+- **Walrus Account ID**: `0xdc7b8f516c9e3456818f1b2c4d3aa4d3390425440f098c44a5796255839066b8`
+- **Walrus Agent ID**: `0xa37ba59085c9ca24439459fe0d537cf32c7208455dc4fe01db5da0e14cc0284a`
+- **Verified Memories on Mainnet**: 11 Live Mainnet Blobs
 
 Special thanks to the Tatum and Mysten Labs / Walrus teams for organizing the Total Recall Hackathon!

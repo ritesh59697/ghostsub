@@ -75,12 +75,11 @@ All credentials and endpoints configured in `ghostsub/.env.local`:
 | :--- | :--- | :--- |
 | **Tatum Account ID** | `act_6a08909eb9111b0e15836f63` | [dashboard.tatum.io](https://dashboard.tatum.io) |
 | **Tatum RPC Gateway** | `https://sui-mainnet.gateway.tatum.io` | Tatum Mainnet RPC endpoint |
-| **Tatum API Key** | `t-6a08909eb9111b0e15836f63-999ab6ab6ea6444580468649` | Production key tested with live RPC |
-| **Sui Address (Account)** | `0x7c529ea0a4d0c4fab1441b283aa9f61212da172b653f931a8ab273a241f56937` | Sui Mainnet Address |
-| **Account ID (SUI)** | `0x7c529ea0a4d0c4fab1441b283aa9f61212da172b653f931a8ab273a241f56937` | [memory.walrus.xyz/dashboard](https://memory.walrus.xyz/dashboard) |
-| **MEMWAL_AGENT_ID** | `0x6b44917fec74720970b55577ceef7da3d95efc58` | Delegate keys on Walrus Memory |
+| **Sui Address (Account)** | `0x332974af9e98313432b464caaaa15c2d63e98395c1447b87854c1b66d9e9d1f3` | Sui Mainnet Wallet Address |
+| **Account ID (SUI)** | `0xdc7b8f516c9e3456818f1b2c4d3aa4d3390425440f098c44a5796255839066b8` | [memory.walrus.xyz/dashboard](https://memory.walrus.xyz/dashboard) |
+| **MEMWAL_AGENT_ID** | `0xa37ba59085c9ca24439459fe0d537cf32c7208455dc4fe01db5da0e14cc0284a` | Delegate keys on Walrus Memory |
 | **Walrus Server URL** | `https://relayer.memory.walrus.xyz` | Walrus Memory Production Relayer |
-| **Total Verified Memories** | **14+ Entries** (exceeds mandatory 10 threshold) | Stored and queryable via `/api/walrus/memories` |
+| **Total Verified Memories** | **11 Live Mainnet Blobs** (exceeds mandatory 10 threshold) | Stored and queryable on Walrus Mainnet |
 
 ---
 
@@ -195,7 +194,7 @@ npm run dev
 - [x] Connected to **Tatum Sui Mainnet Gateway** (`sui-mainnet.gateway.tatum.io`)
 - [x] Connected to **Walrus Memory Mainnet** (`relayer.memory.walrus.xyz`)
 - [x] Stored **≥10 memories on Walrus Mainnet** (14 seeded + dynamic memory commit engine)
-- [x] Registered **MEMWAL_AGENT_ID** (`0x6b44917fec74720970b55577ceef7da3d95efc58`)
+- [x] Registered **MEMWAL_AGENT_ID** (`0xa37ba59085c9ca24439459fe0d537cf32c7208455dc4fe01db5da0e14cc0284a`)
 - [x] Interactive **30-Day Money Shot Simulator**
 - [x] Real-time **HTTP 402 / Sui MPP Micropayment Inspector**
 - [x] Semantic vector memory recall engine
