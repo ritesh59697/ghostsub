@@ -2,8 +2,8 @@ import { MemoryEntry, WalrusStatus } from "./types";
 import { INITIAL_MEMORIES } from "./mock-data";
 
 const WALRUS_RELAYER_URL = process.env.NEXT_PUBLIC_WALRUS_RELAYER_URL || "https://relayer.memory.walrus.xyz";
-const MEMWAL_ACCOUNT_ID = process.env.MEMWAL_ACCOUNT_ID || "0x7c529ea0a4d0c4fab1441b283aa9f61212da172b653f931a8ab273a241f56937";
-const MEMWAL_AGENT_ID = process.env.MEMWAL_AGENT_ID || "0x6b44917fec74720970b55577ceef7da3d95efc58";
+const MEMWAL_ACCOUNT_ID = process.env.MEMWAL_ACCOUNT_ID || process.env.NEXT_PUBLIC_MEMWAL_ACCOUNT_ID || "";
+const MEMWAL_AGENT_ID = process.env.MEMWAL_AGENT_ID || process.env.NEXT_PUBLIC_MEMWAL_AGENT_ID || "";
 
 // In-memory runtime cache of memories so users can add new ones live in demo
 let runtimeMemories: MemoryEntry[] = [...INITIAL_MEMORIES];

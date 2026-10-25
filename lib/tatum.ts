@@ -1,6 +1,6 @@
 import { TatumStatus } from "./types";
 
-const TATUM_API_KEY = process.env.NEXT_PUBLIC_TATUM_API_KEY || "t-6a08909eb9111b0e15836f63-999ab6ab6ea6444580468649";
+const TATUM_API_KEY = process.env.NEXT_PUBLIC_TATUM_API_KEY || "";
 const TATUM_RPC_URL = process.env.NEXT_PUBLIC_TATUM_RPC_URL || "https://sui-mainnet.gateway.tatum.io";
 
 /**

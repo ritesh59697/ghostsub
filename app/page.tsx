@@ -58,21 +58,14 @@ export default function Home() {
   const [tatumLoading, setTatumLoading] = useState<boolean>(false);
   const [tatumError, setTatumError] = useState<string | null>(null);
 
-  const [walrusStatus, setWalrusStatus] = useState<WalrusStatus | null>({
-    online: true,
-    writeReady: true,
-    relayerUrl: "https://relayer.memory.walrus.xyz",
-    accountId: "0x7c529ea0a4d0c4fab1441b283aa9f61212da172b653f931a8ab273a241f56937",
-    agentId: "0x6b44917fec74720970b55577ceef7da3d95efc58",
-    totalMemoriesStored: 14,
-  });
-  const [walrusLoading, setWalrusLoading] = useState<boolean>(false);
+  const [walrusStatus, setWalrusStatus] = useState<WalrusStatus | null>(null);
+  const [walrusLoading, setWalrusLoading] = useState<boolean>(true);
   const [walrusError, setWalrusError] = useState<string | null>(null);
 
   // Execution State
   const [isStreaming, setIsStreaming] = useState<boolean>(false);
   const [streamError, setStreamError] = useState<string | null>(null);
-  const [lastTxDigest, setLastTxDigest] = useState<string>("5Qd47c9f6f2c71a469b78dbb2c1b27b6ad");
+  const [lastTxDigest, setLastTxDigest] = useState<string>("");
   const [copiedDigest, setCopiedDigest] = useState<boolean>(false);
   const [streamSuccessMsg, setStreamSuccessMsg] = useState<string | null>(null);
 

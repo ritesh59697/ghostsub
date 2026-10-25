@@ -29,22 +29,22 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
   const submissionFields = [
     {
       label: "Tatum Account ID",
-      value: "act_6a08909eb9111b0e15836f63",
+      value: process.env.NEXT_PUBLIC_TATUM_ACCOUNT_ID || "Not configured",
       source: "dashboard.tatum.io",
     },
     {
       label: "SUI Address",
-      value: "0x7c529ea0a4d0c4fab1441b283aa9f61212da172b653f931a8ab273a241f56937",
+      value: process.env.NEXT_PUBLIC_MEMWAL_ACCOUNT_ID || "Not configured",
       source: "Sui Mainnet",
     },
     {
       label: "Account ID (SUI)",
-      value: "0x7c529ea0a4d0c4fab1441b283aa9f61212da172b653f931a8ab273a241f56937",
+      value: process.env.NEXT_PUBLIC_MEMWAL_ACCOUNT_ID || "Not configured",
       source: "memory.walrus.xyz/dashboard",
     },
     {
       label: "MEMWAL_AGENT_ID",
-      value: "0x6b44917fec74720970b55577ceef7da3d95efc58",
+      value: process.env.NEXT_PUBLIC_MEMWAL_AGENT_ID || "Not configured",
       source: "Delegate keys on Walrus Memory",
     },
   ];
