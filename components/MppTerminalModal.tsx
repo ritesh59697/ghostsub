@@ -39,82 +39,84 @@ export function MppTerminalModal({ isOpen, onClose }: MppTerminalModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
       <div 
-        className="relative w-full max-w-2xl rounded-lg border border-zinc-800 bg-[#0c0d0e] p-6 text-zinc-100 overflow-hidden"
+        className="relative w-full max-w-2xl rounded-xl border border-zinc-200 bg-white p-6 text-zinc-900 shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+        <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
           <div className="flex items-center gap-2.5">
-            <Terminal className="h-4 w-4 text-emerald-400" />
+            <div className="flex h-7 w-7 items-center justify-center rounded bg-amber-100 text-amber-700">
+              <Terminal className="h-4 w-4" />
+            </div>
             <div>
-              <h3 className="text-sm font-semibold text-white">
+              <h3 className="text-sm font-bold text-zinc-950">
                 Sui Machine Payment Protocol (x402 / MPP) Wire
               </h3>
-              <p className="text-xs text-zinc-400">Autonomous Agent-to-Service Settlement Payload</p>
+              <p className="text-xs text-zinc-500">Autonomous Agent-to-Service Settlement Payload</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="rounded p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
+            className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Protocol Spec overview */}
-        <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
-          <div className="rounded border border-zinc-800 bg-zinc-900/60 p-2.5">
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Protocol</div>
-            <div className="mt-0.5 font-mono text-zinc-200">HTTP 402 / MPP</div>
+        <div className="mt-4 grid grid-cols-3 gap-2.5 text-xs">
+          <div className="rounded-lg border border-zinc-200 bg-zinc-50/80 p-3 shadow-2xs">
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">Protocol</div>
+            <div className="mt-0.5 font-mono font-semibold text-zinc-900">HTTP 402 / MPP</div>
           </div>
-          <div className="rounded border border-zinc-800 bg-zinc-900/60 p-2.5">
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Settlement</div>
-            <div className="mt-0.5 font-mono text-zinc-200">Sui Mainnet</div>
+          <div className="rounded-lg border border-zinc-200 bg-zinc-50/80 p-3 shadow-2xs">
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">Settlement</div>
+            <div className="mt-0.5 font-mono font-semibold text-zinc-900">Sui Mainnet</div>
           </div>
-          <div className="rounded border border-zinc-800 bg-zinc-900/60 p-2.5">
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Gateway</div>
-            <div className="mt-0.5 font-mono text-zinc-200">Tatum RPC</div>
+          <div className="rounded-lg border border-zinc-200 bg-zinc-50/80 p-3 shadow-2xs">
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">Gateway</div>
+            <div className="mt-0.5 font-mono font-semibold text-zinc-900">Tatum RPC</div>
           </div>
         </div>
 
         {/* Code Payload */}
         <div className="mt-4">
-          <div className="flex items-center justify-between bg-zinc-950 px-3.5 py-2 rounded-t border border-zinc-800 border-b-0 text-xs text-zinc-400">
-            <span className="font-mono text-[11px]">x402-wire-packet.json</span>
+          <div className="flex items-center justify-between bg-zinc-100 px-3.5 py-2 rounded-t-lg border border-zinc-200 border-b-0 text-xs text-zinc-600 font-mono">
+            <span className="text-[11px] font-bold">x402-wire-packet.json</span>
             <button
               onClick={copyPayload}
-              className="flex items-center gap-1 text-[11px] hover:text-white transition-colors"
+              className="flex items-center gap-1 text-[11px] hover:text-amber-600 transition-colors"
             >
               {copied ? (
                 <>
-                  <Check className="h-3 w-3 text-emerald-400" />
-                  <span className="text-emerald-400 font-mono">Copied</span>
+                  <Check className="h-3 w-3 text-emerald-600" />
+                  <span className="text-emerald-600 font-bold font-mono">Copied</span>
                 </>
               ) : (
                 <>
                   <Copy className="h-3 w-3" />
-                  <span className="font-mono">Copy</span>
+                  <span className="font-mono">Copy Payload</span>
                 </>
               )}
             </button>
           </div>
-          <pre className="max-h-[300px] overflow-auto rounded-b border border-zinc-800 bg-zinc-950 p-3.5 font-mono text-xs leading-relaxed text-zinc-300 select-all">
+          <pre className="max-h-[300px] overflow-auto rounded-b-lg border border-zinc-200 bg-zinc-900 p-4 font-mono text-xs leading-relaxed text-amber-300 select-all shadow-inner">
             {samplePayload}
           </pre>
         </div>
 
         {/* Footer */}
-        <div className="mt-5 flex items-center justify-between border-t border-zinc-800 pt-3.5 text-xs text-zinc-400">
-          <div className="flex items-center gap-1.5 text-emerald-400">
-            <CheckCircle2 className="h-3.5 w-3.5" />
+        <div className="mt-5 flex items-center justify-between border-t border-zinc-200 pt-3.5 text-xs text-zinc-600">
+          <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
+            <CheckCircle2 className="h-4 w-4" />
             <span>Eligible for $500 Agent Payments Bonus</span>
           </div>
           <button
             onClick={onClose}
-            className="rounded border border-zinc-700 bg-zinc-800 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 transition-colors"
+            className="btn btn-outline btn-sm"
           >
             Close
           </button>
