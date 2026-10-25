@@ -30,6 +30,7 @@ import { Subscription, MemoryEntry, TatumStatus, WalrusStatus } from "@/lib/type
 import { ArchitectureModal } from "@/components/ArchitectureModal";
 import { MppTerminalModal } from "@/components/MppTerminalModal";
 import { MemoryDrawer } from "@/components/MemoryDrawer";
+import { ProductOverview } from "@/components/ProductOverview";
 
 const iconMap: Record<string, React.ElementType> = {
   BrainCircuit,
@@ -41,6 +42,7 @@ const iconMap: Record<string, React.ElementType> = {
 
 export default function Home() {
   // ── State ────────────────────────────────────────────────────────
+  const [activeTab, setActiveTab] = useState<"overview" | "console">("overview");
   const [currentDay, setCurrentDay] = useState<number>(14); // Defaults to Day 14 so user immediately sees the flip
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [selectedSubId, setSelectedSubId] = useState<string>("sub-neurosync");
@@ -219,14 +221,43 @@ export default function Home() {
       {/* ──────────────── TOP BAR ──────────────── */}
       <header className="border-b border-white/[0.08] bg-[#0d0f14] px-6 py-3 shrink-0">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
-          {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-              <ShieldCheck className="h-4 w-4" />
+          {/* Brand + View Switcher */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                <ShieldCheck className="h-4 w-4" />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-sm font-semibold tracking-tight text-white">GhostSub</span>
+                <span className="hidden xl:inline text-xs text-zinc-500">· Autonomous Watchdog</span>
+              </div>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold tracking-tight text-white">GhostSub</span>
-              <span className="text-xs text-zinc-500">· Autonomous Subscription Watchdog</span>
+
+            {/* Segmented Switcher */}
+            <div className="flex items-center rounded-lg border border-white/[0.08] bg-zinc-900/90 p-0.5 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setActiveTab("overview")}
+                className={`px-3 py-1 rounded-md transition-all ${
+                  activeTab === "overview"
+                    ? "bg-zinc-800 text-white font-semibold shadow-xs"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                Product Overview
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("console")}
+                className={`px-3 py-1 rounded-md transition-all flex items-center gap-1.5 ${
+                  activeTab === "console"
+                    ? "bg-zinc-800 text-white font-semibold shadow-xs"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live Console
+              </button>
             </div>
           </div>
 
@@ -306,8 +337,21 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ──────────────── 30-DAY PRECISION SCRUBBER ──────────────── */}
-      <section className="border-b border-white/[0.08] bg-[#0b0c10] px-6 py-4 shrink-0">
+      {activeTab === "overview" ? (
+        <main className="flex-1 overflow-y-auto">
+          <ProductOverview
+            onLaunchConsole={() => setActiveTab("console")}
+            onOpenMemoryDrawer={() => setIsMemoryDrawerOpen(true)}
+            onOpenArchitecture={() => setIsArchitectureOpen(true)}
+            onOpenMppTerminal={() => setIsMppTerminalOpen(true)}
+            walrusCount={memories.length}
+            checkpointSequence={tatumStatus?.checkpointSequence || 336143290}
+          />
+        </main>
+      ) : (
+        <>
+          {/* ──────────────── 30-DAY PRECISION SCRUBBER ──────────────── */}
+          <section className="border-b border-white/[0.08] bg-[#0b0c10] px-6 py-4 shrink-0">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* Controls & Day Readout */}
           <div className="flex items-center gap-4">
@@ -756,6 +800,8 @@ export default function Home() {
           </div>
         </section>
       </main>
+    </>
+  )}
 
       {/* ──────────────── MODALS & DRAWERS ──────────────── */}
       <ArchitectureModal
