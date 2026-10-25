@@ -86,7 +86,7 @@ export function MemoryDrawer({
         {/* Header */}
         <div className="flex items-start justify-between border-b border-zinc-200 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded bg-emerald-100 text-emerald-800">
+            <div className="flex h-7 w-7 items-center justify-center rounded bg-cyan-50 border border-cyan-200/60 text-cyan-800">
               <Database className="h-4 w-4" />
             </div>
             <div>
@@ -94,7 +94,7 @@ export function MemoryDrawer({
                 <h2 className="text-sm font-bold text-zinc-950">
                   Walrus Memory Ledger
                 </h2>
-                <span className="walrus-badge">
+                <span className="tag tag-walrus text-[10px]">
                   ● Mainnet
                 </span>
               </div>
@@ -122,7 +122,7 @@ export function MemoryDrawer({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Query Walrus Memory (e.g. 'efficiency threshold breached')..."
-              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 py-2.5 pl-9 pr-20 text-xs text-zinc-900 placeholder-zinc-400 focus:border-amber-400 focus:bg-white focus:outline-none transition-colors"
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 py-2.5 pl-9 pr-20 text-xs text-zinc-900 placeholder-zinc-400 focus:border-indigo-500 focus:bg-white focus:outline-none transition-colors"
             />
             <button
               type="submit"
@@ -155,7 +155,7 @@ export function MemoryDrawer({
                     .then((d) => setSearchResults(d.matches))
                     .finally(() => setIsSearching(false));
                 }}
-                className="rounded border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] text-zinc-600 hover:border-amber-400 hover:text-amber-700 transition-colors font-mono"
+                className="rounded border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] text-zinc-600 hover:border-indigo-400 hover:text-indigo-700 transition-colors font-mono"
               >
                 "{chip}"
               </button>
@@ -240,7 +240,7 @@ export function MemoryDrawer({
                 onChange={(e) => setNewContent(e.target.value)}
                 placeholder="Observation or telemetry note..."
                 rows={2}
-                className="w-full rounded-md border border-zinc-200 bg-white p-2 text-xs text-zinc-900 placeholder-zinc-400 focus:border-amber-400 focus:outline-none"
+                className="w-full rounded-md border border-zinc-200 bg-white p-2 text-xs text-zinc-900 placeholder-zinc-400 focus:border-indigo-500 focus:outline-none"
               />
 
               <div className="flex items-center justify-between">
@@ -278,10 +278,17 @@ export function MemoryDrawer({
             {displayedMemories.map((mem) => {
               const cardClass =
                 mem.type === "POLICY_CHANGE"
-                  ? "card green"
+                  ? "card-settled"
                   : mem.type === "ALERT"
-                  ? "card red"
-                  : "card accent";
+                  ? "card-intercept"
+                  : "card-walrus";
+
+              const tagClass =
+                mem.type === "POLICY_CHANGE"
+                  ? "tag-settled"
+                  : mem.type === "ALERT"
+                  ? "tag-intercept"
+                  : "tag-walrus";
 
               return (
                 <div
@@ -292,7 +299,7 @@ export function MemoryDrawer({
                     <span className="font-bold text-zinc-900">
                       {mem.subscriptionName}
                     </span>
-                    <span className="walrus-badge text-[10px]">
+                    <span className={`tag ${tagClass} text-[10px]`}>
                       {mem.type}
                     </span>
                   </div>
@@ -311,7 +318,7 @@ export function MemoryDrawer({
                       href={`https://walruscan.com/blob/${mem.walrusBlobId}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-zinc-600 hover:text-amber-600 transition-colors"
+                      className="flex items-center gap-1 text-zinc-600 hover:text-cyan-700 transition-colors"
                     >
                       <span className="truncate max-w-[140px] font-mono">{mem.walrusBlobId}</span>
                       <ExternalLink className="h-2.5 w-2.5" />

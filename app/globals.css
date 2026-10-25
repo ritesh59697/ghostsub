@@ -1,47 +1,48 @@
 @import "tailwindcss";
 
 /* ============================================================
-   GhostSub — Global Styles
-   Aesthetic: Clean SaaS / Fintech. Sunny Yellow + Light Mode.
-   Inspired by SealedBid.
+   GhostSub — Sentinel Light Design System
+   Aesthetic: High-Trust Autonomous FinTech Sentinel
+   Palette: Spectral Indigo (#4f46e5), Walrus Cyan (#0284c7),
+            Emerald Mint (#059669), Coral Intercept (#ea580c)
    ============================================================ */
 
 :root {
-  /* Core palette — Light Mode */
-  --background:      #ffffff; /* Pure white */
-  --surface:         #ffffff; /* Cards and main panels */
-  --surface-2:       #fafafa; /* Subtle off-white sections / inputs */
-  --surface-3:       #f4f4f5; /* Subtle borders / hover fills */
-  --border:          #e5e7eb; /* Crisp light gray border */
-  --border-subtle:   #f3f4f6;
-  --border-accent:   #fde047; /* Soft yellow accent border */
-  --border-bright:   #eab308; /* Vibrant sunny yellow accent borders */
+  /* Canvas & Surfaces */
+  --bg-canvas:       #f8fafc; /* Crisp pearl slate */
+  --surface-card:    #ffffff;
+  --surface-subtle:  #f1f5f9;
+  --surface-hover:   #e2e8f0;
+  --border-light:    #e2e8f0;
+  --border-strong:   #cbd5e1;
 
-  /* Accent — vibrant sunny yellow */
-  --accent:          #eab308;
-  --accent-dim:      #ca8a04;
-  --accent-light:    #fef9c3;
-  --accent-glow:     rgba(234, 179, 8, 0.12);
+  /* Primary Sentinel Accent — Electric Indigo */
+  --sentinel:        #4f46e5;
+  --sentinel-deep:   #3730a3;
+  --sentinel-light:  #eef2ff;
+  --sentinel-glow:   rgba(79, 70, 229, 0.16);
 
-  /* Emerald — verified Walrus & Sui success */
-  --green:           #10b981;
-  --green-dim:       #047857;
-  --green-light:     #ecfdf5;
+  /* Walrus Storage Accent — Cyan / Deep Ocean */
+  --walrus-cyan:     #0284c7;
+  --walrus-light:    #f0f9ff;
+  --walrus-glow:     rgba(2, 132, 199, 0.14);
 
-  /* Danger / Alert */
-  --red:             #ef4444;
-  --red-light:       #fef2f2;
+  /* Autonomous Intercept / Alert — Coral Flame */
+  --intercept:       #ea580c;
+  --intercept-light: #fff7ed;
 
-  /* Text — dark charcoal, slate-gray body */
-  --text-primary:    #111827; /* Dark charcoal */
-  --text-secondary:  #4b5563; /* Slate body text */
-  --text-muted:      #9ca3af; /* Muted gray text */
+  /* On-Chain Settled — Emerald Mint */
+  --settled:         #059669;
+  --settled-light:   #ecfdf5;
+
+  /* Typography Colors */
+  --text-title:      #0f172a; /* Slate 900 */
+  --text-body:       #334155; /* Slate 700 */
+  --text-muted:      #64748b; /* Slate 500 */
+  --text-faint:      #94a3b8; /* Slate 400 */
 
   --font-sans:       var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono:       var(--font-mono), "Space Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-
-  --grid-line:       #f1f5f9;
-  --nav-bg:          rgba(255, 255, 255, 0.94);
 }
 
 * {
@@ -49,8 +50,8 @@
 }
 
 body {
-  background-color: var(--background);
-  color: var(--text-secondary);
+  background-color: var(--bg-canvas);
+  color: var(--text-body);
   font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.6;
@@ -58,20 +59,19 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Crisp dynamic grid background from SealedBid */
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 40px 40px;
+  /* Distinct Ghost Sentinel Radar Matrix */
+  background-image: radial-gradient(#cbd5e1 1.1px, transparent 1.1px);
+  background-size: 24px 24px;
+  background-position: 0 0;
 }
 
 /* Typography */
 h1, h2, h3, h4, h5 {
   font-family: var(--font-sans);
-  color: var(--text-primary);
-  line-height: 1.25;
+  color: var(--text-title);
+  line-height: 1.2;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 .font-mono,
@@ -82,87 +82,100 @@ pre,
   font-variant-numeric: tabular-nums;
 }
 
-/* Reusable component classes from SealedBid */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  position: relative;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+/* ──────────────── Reusable Sentinel Cards (Unique Anti-Copy Anatomy) ──────────────── */
+.card-sentinel {
+  background: var(--surface-card);
+  border: 1px solid var(--border-light);
+  border-top: 3px solid var(--sentinel);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -8px var(--sentinel-glow), 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
-.card::before {
-  content: "";
-  position: absolute;
-  top: 0; 
-  left: 0;
-  width: 3px; 
-  height: 100%;
-  background: var(--border);
-  border-top-left-radius: 8px;
-  border-bottom-left-radius: 8px;
+.card-walrus {
+  background: var(--surface-card);
+  border: 1px solid var(--border-light);
+  border-top: 3px solid var(--walrus-cyan);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -8px var(--walrus-glow), 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
-.card.accent::before { background: var(--accent); }
-.card.green::before  { background: var(--green); }
-.card.red::before    { background: var(--red); }
+.card-intercept {
+  background: var(--surface-card);
+  border: 1px solid var(--border-light);
+  border-top: 3px solid var(--intercept);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -8px rgba(234, 88, 12, 0.12), 0 1px 3px rgba(0, 0, 0, 0.03);
+}
 
-/* Buttons */
+.card-settled {
+  background: var(--surface-card);
+  border: 1px solid var(--border-light);
+  border-top: 3px solid var(--settled);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -8px rgba(5, 150, 105, 0.12), 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.card-clean {
+  background: var(--surface-card);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+/* ──────────────── Buttons ──────────────── */
 .btn {
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 10px 20px;
-  border: 1px solid;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-radius: 6px;
-  position: relative;
-  overflow: hidden;
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: #111111;
-  border-color: var(--accent);
-  box-shadow: 0 2px 6px rgba(234, 179, 8, 0.25);
+  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+  color: #ffffff;
+  border: 1px solid #4338ca;
+  box-shadow: 0 4px 14px var(--sentinel-glow);
 }
 
 .btn-primary:hover {
-  background: #facc15;
-  border-color: #facc15;
-  box-shadow: 0 4px 12px var(--accent-glow);
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.28);
+}
+
+.btn-walrus {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: 1px solid #0284c7;
+  box-shadow: 0 4px 14px var(--walrus-glow);
+}
+
+.btn-walrus:hover {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.26);
 }
 
 .btn-outline {
   background: #ffffff;
-  color: var(--text-primary);
-  border-color: var(--border);
+  color: var(--text-title);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .btn-outline:hover {
-  border-color: var(--accent);
-  background: rgba(234, 179, 8, 0.04);
-  color: var(--accent-dim);
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--text-secondary);
-  border-color: transparent;
-  padding: 8px 12px;
-}
-
-.btn-ghost:hover {
-  color: var(--text-primary);
-  background: var(--surface-3);
+  border-color: #6366f1;
+  background: var(--sentinel-light);
+  color: #3730a3;
 }
 
 .btn-sm {
@@ -170,96 +183,75 @@ pre,
   font-size: 11px;
 }
 
-/* Custom precision range scrubber — Sunny Yellow */
+/* ──────────────── Badges & Telemetry Tags ──────────────── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.tag-sentinel {
+  background: var(--sentinel-light);
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+}
+
+.tag-walrus {
+  background: var(--walrus-light);
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.tag-intercept {
+  background: var(--intercept-light);
+  color: #9a3412;
+  border: 1px solid #ffedd5;
+}
+
+.tag-settled {
+  background: var(--settled-light);
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+/* Radar pulse animation */
+@keyframes radar-pulse {
+  0%   { transform: scale(0.95); opacity: 0.8; }
+  50%  { transform: scale(1.1);  opacity: 1;   }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.radar-ping {
+  animation: radar-pulse 2.2s infinite ease-in-out;
+}
+
+/* Custom precision range scrubber — Electric Indigo & Cyan */
 input[type="range"]::-webkit-slider-thumb {
   appearance: none;
-  height: 20px;
-  width: 20px;
+  height: 22px;
+  width: 22px;
   border-radius: 9999px;
-  background: #eab308;
-  border: 2px solid #ffffff;
+  background: #4f46e5;
+  border: 3px solid #ffffff;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), 0 0 0 1px #eab308;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4), 0 0 0 1px #4338ca;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.15);
-  box-shadow: 0 0 0 4px rgba(234, 179, 8, 0.25);
+  box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.2);
 }
 
 input[type="range"]::-webkit-slider-thumb:active {
   transform: scale(0.95);
-}
-
-/* Status badges from SealedBid */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border-radius: 4px;
-  font-family: var(--font-mono);
-  font-weight: 700;
-}
-
-.badge-commit  { background: rgba(234, 179, 8, 0.08); color: #854d0e;  border: 1px solid rgba(234, 179, 8, 0.4); }
-.badge-reveal  { background: rgba(16, 185, 129, 0.08); color: #065f46;  border: 1px solid rgba(16, 185, 129, 0.4); }
-.badge-ended   { background: rgba(239, 68, 68, 0.08);  color: #991b1b;  border: 1px solid rgba(239, 68, 68, 0.4); }
-.badge-settled { background: rgba(107, 114, 128, 0.08); color: #374151; border: 1px solid rgba(107, 114, 128, 0.3); }
-
-/* Walrus badge */
-.walrus-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: 4px;
-  font-size: 11px;
-  color: #047857;
-  letter-spacing: 0.05em;
-  font-family: var(--font-mono);
-  font-weight: 600;
-}
-
-/* Phase dot */
-.dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-.dot-commit  { background: var(--accent); animation: pulse-amber 2s infinite; }
-.dot-reveal  { background: var(--green);  animation: pulse-green 2s infinite; }
-.dot-ended   { background: var(--red); }
-.dot-settled { background: var(--text-muted); }
-
-@keyframes pulse-amber {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.5); }
-  50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(234, 179, 8, 0); }
-}
-@keyframes pulse-green {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
-  50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
-}
-
-/* Clean subtle scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--surface-2);
-}
-
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
 }
 
 /* Hide scrollbar utility */
@@ -269,4 +261,20 @@ input[type="range"]::-webkit-slider-thumb:active {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Subtle clean scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

@@ -60,7 +60,7 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded bg-amber-100 text-amber-700">
+            <div className="flex h-7 w-7 items-center justify-center rounded bg-indigo-50 border border-indigo-200/60 text-indigo-700">
               <Layers className="h-4 w-4" />
             </div>
             <div>
@@ -96,7 +96,7 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
                   </span>
                   <button
                     onClick={() => handleCopy(field.label, field.value)}
-                    className="flex items-center gap-1 text-[11px] text-zinc-500 hover:text-amber-600 transition-colors"
+                    className="flex items-center gap-1 text-[11px] text-zinc-500 hover:text-indigo-600 transition-colors"
                   >
                     {copiedKey === field.label ? (
                       <>
@@ -128,7 +128,7 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
             </span>
             <button
               onClick={() => handleCopy("ai-builder-prompt", aiBuilderPrompt)}
-              className="flex items-center gap-1 text-[11px] text-zinc-500 hover:text-amber-600 transition-colors"
+              className="flex items-center gap-1 text-[11px] text-zinc-500 hover:text-indigo-600 transition-colors"
             >
               {copiedKey === "ai-builder-prompt" ? (
                 <>

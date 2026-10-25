@@ -47,7 +47,7 @@ export function MppTerminalModal({ isOpen, onClose }: MppTerminalModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded bg-amber-100 text-amber-700">
+            <div className="flex h-7 w-7 items-center justify-center rounded bg-indigo-50 border border-indigo-200/60 text-indigo-700">
               <Terminal className="h-4 w-4" />
             </div>
             <div>
@@ -88,7 +88,7 @@ export function MppTerminalModal({ isOpen, onClose }: MppTerminalModalProps) {
             <span className="text-[11px] font-bold">x402-wire-packet.json</span>
             <button
               onClick={copyPayload}
-              className="flex items-center gap-1 text-[11px] hover:text-amber-600 transition-colors"
+              className="flex items-center gap-1 text-[11px] text-zinc-600 hover:text-indigo-600 transition-colors"
             >
               {copied ? (
                 <>
@@ -103,7 +103,7 @@ export function MppTerminalModal({ isOpen, onClose }: MppTerminalModalProps) {
               )}
             </button>
           </div>
-          <pre className="max-h-[300px] overflow-auto rounded-b-lg border border-zinc-200 bg-zinc-900 p-4 font-mono text-xs leading-relaxed text-amber-300 select-all shadow-inner">
+          <pre className="max-h-[300px] overflow-auto rounded-b-lg border border-slate-800 bg-slate-950 p-4 font-mono text-xs leading-relaxed text-cyan-300 select-all shadow-inner">
             {samplePayload}
           </pre>
         </div>
