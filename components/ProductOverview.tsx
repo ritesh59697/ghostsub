@@ -20,25 +20,65 @@ import {
   ShieldAlert,
   Gauge,
   Sliders,
-  DollarSign
+  DollarSign,
+  Play,
+  Pause,
+  RotateCcw,
+  Server,
+  Tv,
+  LineChart,
+  Activity
 } from "lucide-react";
+import { Subscription, MemoryEntry } from "@/lib/types";
+
+const iconMap: Record<string, React.ElementType> = {
+  BrainCircuit,
+  Server,
+  Tv,
+  LineChart,
+  ShieldAlert,
+};
 
 interface ProductOverviewProps {
-  onLaunchConsole: () => void;
   onOpenMemoryDrawer: () => void;
   onOpenArchitecture: () => void;
   onOpenMppTerminal: () => void;
   walrusCount: number;
   checkpointSequence: number;
+  
+  // Interactive Simulator & Flight Track
+  currentDay: number;
+  setCurrentDay: (day: number) => void;
+  isPlaying: boolean;
+  setIsPlaying: (playing: boolean) => void;
+  subscriptions: Subscription[];
+  selectedSubId: string;
+  setSelectedSubId: (id: string) => void;
+  onExecuteStream: (subId: string) => void;
+  isStreaming: boolean;
+  streamSuccessMsg: string | null;
+  streamError: string | null;
+  lastTxDigest: string;
 }
 
 export function ProductOverview({
-  onLaunchConsole,
   onOpenMemoryDrawer,
   onOpenArchitecture,
   onOpenMppTerminal,
   walrusCount,
   checkpointSequence,
+  currentDay,
+  setCurrentDay,
+  isPlaying,
+  setIsPlaying,
+  subscriptions,
+  selectedSubId,
+  setSelectedSubId,
+  onExecuteStream,
+  isStreaming,
+  streamSuccessMsg,
+  streamError,
+  lastTxDigest,
 }: ProductOverviewProps) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [monthlySpend, setMonthlySpend] = useState<number>(180);
@@ -60,119 +100,450 @@ export function ProductOverview({
   const estimatedSavings = Math.round(monthlySpend * 0.74);
   const estimatedMppCost = monthlySpend - estimatedSavings;
 
+  // Selected Service
+  const selectedSub = subscriptions.find((s) => s.id === selectedSubId) || subscriptions[0];
+  const SelectedIcon = iconMap[selectedSub.iconName] || Zap;
+
+  // Calculations for current day
+  const isFlipped = currentDay >= 14;
+  const dayDecayFactor = Math.max(0.1, 1 - (currentDay / 30) * 0.92);
+  const currentEfficiency = isFlipped
+    ? selectedSub.efficiencyScore
+    : +(selectedSub.efficiencyScore + (100 - selectedSub.efficiencyScore) * dayDecayFactor).toFixed(1);
+  const isBreached = currentEfficiency < selectedSub.thresholdEfficiency;
+
+  const totalSavedCurrent = subscriptions.reduce((acc, s) => {
+    if (!isFlipped) return acc;
+    const dayFactor = currentDay / 30;
+    const spent = +(s.totalUnitsConsumed * dayFactor * s.mppRatePerUnit).toFixed(2);
+    return acc + (s.flatMonthlyRate - spent);
+  }, 0);
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 space-y-16">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-16">
       
-      {/* ── 1. HERO SECTION (GhostSub Sentinel Cockpit) ─────────────────── */}
-      <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-8 sm:p-14 shadow-xl shadow-indigo-500/5 text-center flex flex-col items-center">
-        {/* Radar Ring Glow Effect in background */}
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-gradient-to-b from-indigo-500/10 to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 right-1/4 w-80 h-80 rounded-full bg-gradient-to-t from-cyan-500/10 to-transparent blur-3xl pointer-events-none" />
-
-        {/* Sentinel Eyebrow Badge */}
-        <div className="relative z-10 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-200 bg-indigo-50/80 text-[11px] font-mono font-bold text-indigo-700 tracking-wider uppercase mb-5 shadow-xs">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600" />
-          </span>
-          Autonomous Capital Sentinel // Walrus Mainnet + Sui x402
+      {/* ── 1. HERO SECTION: Swiss Modern Sentinel ─────────────────── */}
+      <section className="space-y-6 pt-2">
+        <div className="max-w-3xl space-y-3">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 leading-[1.12]">
+            Autonomous subscription decommissioning on Sui.
+          </h1>
+          <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
+            GhostSub monitors compute and API query volume in Walrus decentralized memory. When sustained dormancy is detected, it terminates flat recurring billing and provisions sub-cent Sui micropayment streams via Tatum RPC.
+          </p>
         </div>
 
-        {/* Display Headline */}
-        <h1 className="relative z-10 text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 max-w-3xl leading-[1.12] mb-5">
-          Software bills that pay themselves{" "}
-          <span className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-600 bg-clip-text text-transparent">
-            only when you show up.
-          </span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="relative z-10 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
-          <strong className="text-slate-900 font-semibold">GhostSub</strong> is an autonomous financial agent that uses <strong className="text-cyan-700 font-semibold">Walrus Decentralized Memory</strong> to track compute activity. When you go dormant, it automatically cancels flat recurring fees and arms sub-cent <strong className="text-indigo-600 font-semibold">Sui micropayment streams (x402/MPP)</strong> via <strong className="text-slate-900 font-semibold">Tatum RPC</strong>.
-        </p>
-
-        {/* Action Buttons */}
-        <div className="relative z-10 flex flex-wrap items-center justify-center gap-3.5 mb-10">
-          <button
-            onClick={onLaunchConsole}
-            className="btn btn-primary"
-            style={{ padding: "14px 28px", fontSize: "13px" }}
-          >
-            <Zap className="h-4 w-4" />
-            Launch Sentinel Cockpit
-          </button>
-
-          <button
-            onClick={onOpenMemoryDrawer}
-            className="btn btn-walrus"
-            style={{ padding: "14px 24px", fontSize: "13px" }}
-          >
-            <Database className="h-4 w-4" />
-            Inspect {walrusCount} Walrus Blobs
-          </button>
-
-          <button
-            onClick={onOpenArchitecture}
-            className="btn btn-outline"
-            style={{ padding: "14px 24px", fontSize: "13px" }}
-          >
-            <Layers className="h-4 w-4 text-slate-600" />
-            Architecture & Receipts
-          </button>
-        </div>
-
-        {/* 4 Telemetry Metrics */}
-        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-4xl pt-6 border-t border-slate-100">
-          <div className="card-walrus p-4 text-left">
-            <div className="text-[10px] font-mono font-bold text-cyan-800 uppercase tracking-wider">Walrus Mainnet</div>
-            <div className="text-2xl font-bold font-mono text-cyan-700 mt-1">{walrusCount} Blobs</div>
-            <div className="text-xs text-slate-500 mt-0.5">SEAL encrypted on-chain</div>
+        {/* Live Telemetry Bar */}
+        <div className="flex flex-wrap items-center gap-3 pt-2 text-xs font-mono">
+          <div className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-xs">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-slate-500">Tatum Sui RPC:</span>
+            <span className="font-bold text-slate-900">#{(checkpointSequence || 336143290).toLocaleString()}</span>
           </div>
-          <div className="card-settled p-4 text-left">
-            <div className="text-[10px] font-mono font-bold text-emerald-800 uppercase tracking-wider">Capital Protected</div>
-            <div className="text-2xl font-bold font-mono text-emerald-700 mt-1">$117.25 / mo</div>
-            <div className="text-xs text-slate-500 mt-0.5">Across 5 monitored tools</div>
+
+          <div className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-xs">
+            <span className="text-slate-500">Walrus Mainnet:</span>
+            <button
+              onClick={onOpenMemoryDrawer}
+              className="font-bold text-sky-700 hover:text-sky-800 transition-colors"
+            >
+              {walrusCount} Blobs Sealed
+            </button>
           </div>
-          <div className="card-sentinel p-4 text-left">
-            <div className="text-[10px] font-mono font-bold text-indigo-800 uppercase tracking-wider">Tatum Sui RPC</div>
-            <div className="text-2xl font-bold font-mono text-indigo-700 mt-1">#{(checkpointSequence || 336143290).toLocaleString()}</div>
-            <div className="text-xs text-slate-500 mt-0.5">Live checkpoint sync</div>
+
+          <div className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-xs">
+            <span className="text-slate-500">Settlement Rail:</span>
+            <span className="font-bold text-slate-900">Sui x402 / MPP</span>
           </div>
-          <div className="card-intercept p-4 text-left">
-            <div className="text-[10px] font-mono font-bold text-orange-800 uppercase tracking-wider">Waste Intercepted</div>
-            <div className="text-2xl font-bold font-mono text-orange-600 mt-1">78.3%</div>
-            <div className="text-xs text-slate-500 mt-0.5">Dormancy fee avoided</div>
+
+          <div className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-emerald-800 shadow-xs">
+            <span className="font-medium text-emerald-700">Capital Protected:</span>
+            <span className="font-bold tabular-nums text-emerald-900">${totalSavedCurrent.toFixed(2)} / mo</span>
           </div>
         </div>
       </section>
 
-      {/* ── 2. INTERACTIVE WASTE CALCULATOR (Bespoke to GhostSub) ──────── */}
-      <section className="card-clean p-6 sm:p-8 bg-gradient-to-br from-white to-slate-50 border border-slate-200 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-indigo-600 uppercase tracking-wider">
-              <Sliders className="h-3.5 w-3.5" />
-              Interactive Capital Audit
+      {/* ── 2. LIVE INTERACTIVE SENTINEL COCKPIT ─────────────────────── */}
+      <section className="card-clean overflow-hidden border-slate-200 shadow-sm space-y-0">
+        
+        {/* Cockpit Header & Flight Track Scrubber */}
+        <div className="border-b border-slate-200 bg-slate-50/80 px-6 py-4.5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            {/* Timeline Controls */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 transition-colors shadow-xs"
+                  title={isPlaying ? "Pause timeline" : "Play 30-day simulation"}
+                >
+                  {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5 fill-slate-900" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPlaying(false);
+                    setCurrentDay(1);
+                  }}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-50 transition-colors shadow-xs"
+                  title="Reset to Day 1"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <div className="flex items-baseline gap-2">
+                <span className="font-mono text-base font-bold tabular-nums text-slate-900">
+                  Day {currentDay} <span className="text-slate-400 font-normal text-xs">/ 30</span>
+                </span>
+                {currentDay < 14 ? (
+                  <span className="tag tag-neutral text-[11px]">
+                    Monitoring Habits
+                  </span>
+                ) : (
+                  <span className="tag tag-intercept text-[11px]">
+                    Autopilot Intercept Triggered
+                  </span>
+                )}
+              </div>
             </div>
-            <h2 className="text-2xl font-extrabold text-slate-900 mt-1">
-              Estimate Your Zombie SaaS Recovery
+
+            {/* Range Scrubber with Day 14 Tick */}
+            <div className="flex-1 max-w-lg mx-2 flex items-center gap-3">
+              <span className="font-mono text-[11px] text-slate-400 font-medium shrink-0">Day 1</span>
+              <div className="relative w-full flex items-center">
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 h-4 w-1 rounded-full bg-rose-500 pointer-events-none z-10"
+                  style={{ left: `${(14 / 30) * 100}%` }}
+                  title="Day 14 Decommissioning Threshold"
+                />
+                <input
+                  type="range"
+                  min="1"
+                  max="30"
+                  value={currentDay}
+                  onChange={(e) => {
+                    setIsPlaying(false);
+                    setCurrentDay(Number(e.target.value));
+                  }}
+                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-200 focus:outline-none"
+                />
+              </div>
+              <span className="font-mono text-[11px] text-slate-400 font-medium shrink-0">Day 30</span>
+            </div>
+
+            {/* Quick Presets */}
+            <div className="flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono">
+              {[
+                { day: 1, label: "Day 1 (Normal)" },
+                { day: 9, label: "Day 9 (Warning)" },
+                { day: 14, label: "Day 14 (Flip)" },
+                { day: 30, label: "Day 30 (Audit)" },
+              ].map((m) => {
+                const isActive = currentDay === m.day;
+                return (
+                  <button
+                    key={m.day}
+                    type="button"
+                    onClick={() => {
+                      setIsPlaying(false);
+                      setCurrentDay(m.day);
+                    }}
+                    className={`rounded-md border px-2.5 py-1 transition-all whitespace-nowrap font-medium ${
+                      isActive
+                        ? m.day === 14
+                          ? "border-rose-400 bg-rose-50 text-rose-900 font-bold"
+                          : "border-slate-800 bg-slate-900 text-white font-bold"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 shadow-2xs"
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Two-Column Workspace: Left Table + Right Execution Panel */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 bg-white">
+          
+          {/* Left: 5 Monitored Services Table */}
+          <div className="lg:col-span-7 overflow-x-auto no-scrollbar">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50/70 text-[11px] font-mono font-medium text-slate-500 uppercase tracking-wider">
+                  <th className="py-3 pl-5 pr-2">Service</th>
+                  <th className="py-3 px-2">Efficiency</th>
+                  <th className="py-3 px-2">Billing Mode</th>
+                  <th className="py-3 pr-5 pl-2 text-right">Saved</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {subscriptions.map((sub) => {
+                  const isSelected = sub.id === selectedSub.id;
+                  const dayFactor = currentDay / 30;
+                  const effDecay = Math.max(0.1, 1 - dayFactor * 0.92);
+                  const eff = isFlipped ? sub.efficiencyScore : +(sub.efficiencyScore + (100 - sub.efficiencyScore) * effDecay).toFixed(1);
+                  const breached = eff < sub.thresholdEfficiency;
+
+                  const currentUnits = Math.round(sub.totalUnitsConsumed * dayFactor);
+                  const currentMppSpent = +(currentUnits * sub.mppRatePerUnit).toFixed(2);
+                  const savedAmount = isFlipped ? +(sub.flatMonthlyRate - currentMppSpent).toFixed(2) : 0.0;
+
+                  const Icon = iconMap[sub.iconName] || Zap;
+
+                  return (
+                    <tr
+                      key={sub.id}
+                      onClick={() => setSelectedSubId(sub.id)}
+                      className={`cursor-pointer transition-colors ${
+                        isSelected ? "bg-slate-50 font-medium" : "hover:bg-slate-50/50"
+                      }`}
+                    >
+                      <td className="py-3.5 pl-5 pr-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 shrink-0 shadow-2xs">
+                            <Icon className="h-3.5 w-3.5" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-semibold text-slate-900 truncate">{sub.name}</div>
+                            <div className="text-[10px] text-slate-500 truncate">{sub.category}</div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="py-3 px-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-1.5 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                            <div 
+                              className={`h-full rounded-full transition-all duration-300 ${breached ? "bg-rose-500" : "bg-slate-700"}`}
+                              style={{ width: `${Math.min(100, eff)}%` }}
+                            />
+                          </div>
+                          <span className={`font-mono text-xs tabular-nums font-semibold ${breached ? "text-rose-600" : "text-slate-700"}`}>
+                            {eff}%
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="py-3 px-2">
+                        {isFlipped ? (
+                          <span className="tag tag-sentinel text-[10px]">
+                            Sui MPP Stream
+                          </span>
+                        ) : (
+                          <span className="tag tag-neutral text-[10px]">
+                            Flat Monthly (${sub.flatMonthlyRate})
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3 pr-5 pl-2 text-right font-mono text-xs tabular-nums font-semibold">
+                        {savedAmount > 0 ? (
+                          <span className="text-emerald-600">+${savedAmount.toFixed(2)}</span>
+                        ) : (
+                          <span className="text-slate-400">$0.00</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Right: Selected Service Inspector & Sui Execution */}
+          <div className="lg:col-span-5 p-6 space-y-5 bg-slate-50/30 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 shadow-2xs">
+                    <SelectedIcon className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-sm">{selectedSub.name}</h3>
+                    <span className="text-[10px] font-mono text-slate-500">{selectedSub.id}</span>
+                  </div>
+                </div>
+                <span className={`tag text-[10px] ${isBreached ? "tag-intercept" : "tag-settled"}`}>
+                  {isBreached ? "Dormancy Breach" : "Normal Usage"}
+                </span>
+              </div>
+
+              {/* Telemetry Breakdown */}
+              <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                <div className="rounded-lg border border-slate-200 bg-white p-2.5">
+                  <span className="text-[10px] text-slate-500 block">Baseline Plan</span>
+                  <span className="font-bold text-slate-900">${selectedSub.flatMonthlyRate}/mo</span>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-white p-2.5">
+                  <span className="text-[10px] text-slate-500 block">Streaming Rate</span>
+                  <span className="font-bold text-slate-900">${selectedSub.mppRatePerUnit} / {selectedSub.mppUnitName}</span>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-white p-2.5">
+                  <span className="text-[10px] text-slate-500 block">Efficiency Floor</span>
+                  <span className="font-bold text-slate-900">{selectedSub.thresholdEfficiency}%</span>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-white p-2.5">
+                  <span className="text-[10px] text-slate-500 block">Current Day Efficiency</span>
+                  <span className={`font-bold ${isBreached ? "text-rose-600" : "text-slate-900"}`}>{currentEfficiency}%</span>
+                </div>
+              </div>
+
+              {/* Status explanation */}
+              <div className="rounded-lg border border-slate-200 bg-white p-3 text-xs text-slate-600 leading-relaxed">
+                {isFlipped ? (
+                  <span>
+                    <strong>Autopilot Protocol Active:</strong> GhostSub cancelled the recurring flat fee. API queries now settle individually on Sui via x402 payment channels.
+                  </span>
+                ) : (
+                  <span>
+                    <strong>Monitoring Phase:</strong> Usage is within acceptable thresholds. GhostSub is actively committing hourly habit checkpoints to Walrus Mainnet.
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Execution Trigger */}
+            <div className="space-y-2 pt-2 border-t border-slate-200">
+              <button
+                type="button"
+                onClick={() => onExecuteStream(selectedSub.id)}
+                disabled={isStreaming}
+                className="btn btn-primary w-full py-2.5 text-xs font-semibold"
+              >
+                {isStreaming ? (
+                  <span>Streaming via Tatum Sui RPC...</span>
+                ) : (
+                  <>
+                    <Zap className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>Execute Sui x402 Micropayment ({selectedSub.mppRatePerUnit} USDC)</span>
+                  </>
+                )}
+              </button>
+
+              {streamSuccessMsg && (
+                <div className="rounded-md border border-emerald-200 bg-emerald-50 p-2 text-[11px] text-emerald-800 font-mono">
+                  {streamSuccessMsg}
+                </div>
+              )}
+
+              {streamError && (
+                <div className="rounded-md border border-rose-200 bg-rose-50 p-2 text-[11px] text-rose-800 font-mono">
+                  {streamError}
+                </div>
+              )}
+
+              {lastTxDigest && (
+                <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 pt-1">
+                  <span>Last Sui Tx:</span>
+                  <a
+                    href={`https://suiscan.xyz/mainnet/tx/${lastTxDigest}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-800 hover:text-slate-900 underline flex items-center gap-1 font-semibold"
+                  >
+                    {lastTxDigest.slice(0, 12)}...
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. ASYMMETRIC SWISS ARCHITECTURAL BREAKDOWN ─────────────── */}
+      <section className="space-y-6">
+        <div className="space-y-1">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+            How the autonomous sentinel operates.
+          </h2>
+          <p className="text-sm text-slate-600 max-w-xl">
+            A three-stage closed loop linking client habit telemetry, threshold policy reasoning, and on-chain Sui settlement.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-200 border-y border-slate-200 py-8">
+          
+          {/* Pillar 1 */}
+          <div className="space-y-3 md:pr-6">
+            <div className="flex items-center justify-between text-xs font-mono text-slate-500">
+              <span className="font-bold text-slate-900">Stage 01</span>
+              <span>Walrus Mainnet</span>
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">
+              SEAL-Encrypted Habit Memory
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Every query and compute session is encrypted with client-side SEAL keys and written directly to Walrus Mainnet storage epochs via <code className="font-mono text-slate-800 font-semibold">@mysten-incubation/memwal</code>. The sentinel maintains an immutable, tamper-proof record of actual tool usage.
+            </p>
+            <div className="pt-2 text-[11px] font-mono text-slate-500">
+              Endpoint: <span className="text-slate-900 font-medium">relayer.memory.walrus.xyz</span>
+            </div>
+          </div>
+
+          {/* Pillar 2 */}
+          <div className="space-y-3 pt-6 md:pt-0 md:px-6">
+            <div className="flex items-center justify-between text-xs font-mono text-slate-500">
+              <span className="font-bold text-slate-900">Stage 02</span>
+              <span>Policy Intercept</span>
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">
+              Day 14 Autopilot Decommissioning
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Vector recall scans memory checkpoints. When query efficiency drops below the 20% floor for 10+ consecutive days, GhostSub automatically issues a decommissioning directive—canceling the recurring monthly charge before credit card renewal fires.
+            </p>
+            <div className="pt-2 text-[11px] font-mono text-slate-500">
+              Threshold Rule: <span className="text-rose-600 font-bold">&lt; 20% Efficiency Floor</span>
+            </div>
+          </div>
+
+          {/* Pillar 3 */}
+          <div className="space-y-3 pt-6 md:pt-0 md:pl-6">
+            <div className="flex items-center justify-between text-xs font-mono text-slate-500">
+              <span className="font-bold text-slate-900">Stage 03</span>
+              <span>Sui x402 Rail</span>
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">
+              Machine Payment Protocol
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              When the developer returns to use the tool, they do not resubscribe. GhostSub uses HTTP 402 Payment Required headers to stream sub-cent payments ($0.005/query) on Sui via Tatum RPC Gateway at ~0.001 SUI gas.
+            </p>
+            <div className="pt-2 text-[11px] font-mono text-slate-500">
+              Latency: <span className="text-slate-900 font-bold">~366ms via Tatum Gateway</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. RECOVERY CALCULATOR ──────────────────────────────────── */}
+      <section className="card-clean p-6 sm:p-8 space-y-6 border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">
+              Estimate your zombie subscription recovery.
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600">
-              See how much recurring capital GhostSub's Day 14 autonomous intercept protects.
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+              Quantify recurring capital saved by switching from flat subscriptions to Sui micropayments.
             </p>
           </div>
           <div className="text-right">
-            <span className="text-[11px] font-mono text-slate-500 block">Protected by GhostSub</span>
-            <span className="text-3xl font-black font-mono text-emerald-600">
-              +${estimatedSavings}
-              <span className="text-xs text-slate-500 font-normal"> / month</span>
+            <span className="text-[11px] font-mono text-slate-500 block">Annual Capital Retained</span>
+            <span className="text-2xl sm:text-3xl font-black font-mono text-emerald-600 tabular-nums">
+              +${estimatedSavings * 12}
+              <span className="text-xs text-slate-500 font-normal"> / year</span>
             </span>
           </div>
         </div>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between font-mono text-xs text-slate-600">
-            <span>Your Monthly Flat Subscriptions (AI tools, compute pods, APIs):</span>
+            <span>Monthly Recurring SaaS Spend (AI APIs, GPU pods, dev tools):</span>
             <span className="font-bold text-base text-slate-900 tabular-nums">${monthlySpend}/mo</span>
           </div>
           <input
@@ -182,10 +553,10 @@ export function ProductOverview({
             step="10"
             value={monthlySpend}
             onChange={(e) => setMonthlySpend(Number(e.target.value))}
-            className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
           />
           <div className="flex justify-between text-[11px] font-mono text-slate-400">
-            <span>$30/mo (Solo Dev)</span>
+            <span>$30/mo (Solo)</span>
             <span>$180/mo (Active Builder)</span>
             <span>$350/mo (AI Studio)</span>
             <span>$600+/mo (Small Team)</span>
@@ -193,176 +564,64 @@ export function ProductOverview({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-          <div className="rounded-lg border border-slate-200 bg-white p-3.5">
+          <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3.5 space-y-1">
             <div className="text-[11px] font-mono text-slate-500">Traditional Flat SaaS</div>
-            <div className="text-lg font-bold text-slate-900 font-mono mt-0.5">${monthlySpend}.00</div>
-            <div className="text-xs text-rose-500 mt-0.5">100% paid even if idle for weeks</div>
+            <div className="text-lg font-bold text-slate-900 font-mono tabular-nums">${monthlySpend}.00</div>
+            <div className="text-xs text-rose-600">Charged 100% even when idle for weeks</div>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-3.5">
+          <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3.5 space-y-1">
             <div className="text-[11px] font-mono text-slate-500">GhostSub Sui x402 Actual</div>
-            <div className="text-lg font-bold text-indigo-700 font-mono mt-0.5">${estimatedMppCost}.00</div>
-            <div className="text-xs text-indigo-600 mt-0.5">Pay only for active queries</div>
+            <div className="text-lg font-bold text-slate-900 font-mono tabular-nums">${estimatedMppCost}.00</div>
+            <div className="text-xs text-slate-600">Micro-metered per actual query</div>
           </div>
-          <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3.5">
-            <div className="text-[11px] font-mono text-emerald-800 font-bold">Annual Capital Retained</div>
-            <div className="text-lg font-bold text-emerald-700 font-mono mt-0.5">+${estimatedSavings * 12} / year</div>
-            <div className="text-xs text-emerald-700 mt-0.5">Zero cancellation friction</div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 3. SENTINEL ARCHITECTURE PIPELINE (Anti-Copy Design) ─────────── */}
-      <section className="space-y-6">
-        <div className="text-center max-w-xl mx-auto space-y-1">
-          <div className="text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-indigo-600">
-            Autonomous Pipeline
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-            The Three-Stage Surveillance Loop
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600">
-            Connecting cryptographic telemetry, policy reasoning, and onchain Sui settlement.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Stage 1 */}
-          <div className="card-walrus p-6 space-y-4 flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="tag tag-walrus text-[10px]">STAGE 01</span>
-                <BrainCircuit className="h-5 w-5 text-cyan-600" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-900">
-                Encrypted Habit Memory
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Daily API queries and compute sessions are encrypted with SEAL and written directly to <strong className="text-cyan-800">Walrus Mainnet</strong> via `@mysten-incubation/memwal`. The agent stores a private, tamper-proof history of your tool habits.
-              </p>
-            </div>
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
-              <span>relayer.memory.walrus.xyz</span>
-              <span className="text-cyan-700 font-bold">11 Blobs Seeded</span>
-            </div>
-          </div>
-
-          {/* Stage 2 */}
-          <div className="card-intercept p-6 space-y-4 flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="tag tag-intercept text-[10px]">STAGE 02</span>
-                <ShieldAlert className="h-5 w-5 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-900">
-                Day 14 Autopilot Intercept
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                When vector recall detects your usage efficiency score has fallen below the 20% floor for 10+ consecutive days, GhostSub automatically executes an intercept rule: canceling the flat $29.99/mo charge before the billing renewal fires.
-              </p>
-            </div>
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
-              <span>Policy Rule: &lt; 20% Floor</span>
-              <span className="text-orange-700 font-bold">Day 14 Trigger</span>
-            </div>
-          </div>
-
-          {/* Stage 3 */}
-          <div className="card-sentinel p-6 space-y-4 flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="tag tag-sentinel text-[10px]">STAGE 03</span>
-                <Zap className="h-5 w-5 text-indigo-600" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-900">
-                Sui x402 Micropayments
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                When you do return to run a query, you don't resubscribe. GhostSub uses the HTTP 402 Machine Payment Protocol (MPP) to stream sub-cent transactions ($0.005/call) on Sui via Tatum RPC Gateway at negligible ~0.001 SUI gas.
-              </p>
-            </div>
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
-              <span>sui-mainnet.gateway.tatum.io</span>
-              <span className="text-indigo-700 font-bold">~366ms Latency</span>
-            </div>
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50/80 p-3.5 space-y-1">
+            <div className="text-[11px] font-mono text-emerald-800 font-semibold">Monthly Protected Capital</div>
+            <div className="text-lg font-bold text-emerald-700 font-mono tabular-nums">+${estimatedSavings} / month</div>
+            <div className="text-xs text-emerald-700">Zero cancellation friction</div>
           </div>
         </div>
       </section>
 
-      {/* ── 4. PROBLEM VS SOLUTION DUALITY ─────────────────────────────── */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="card-intercept p-6 space-y-3.5">
-          <div className="tag tag-intercept text-xs">
-            <TrendingDown className="h-3.5 w-3.5" />
-            The Problem: Amnesic Billing
-          </div>
-          <h3 className="text-xl font-bold text-slate-900">
-            Why traditional SaaS drains developer budgets.
-          </h3>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            Builders sign up for $30/mo AI research tools or $39/mo GPU compute pods for weekend hackathons. When the sprint ends, the recurring bill quietly charges their card every month for software they haven't opened in 45+ days.
-          </p>
-          <div className="text-xs text-orange-900 bg-orange-50/70 p-3 rounded-lg border border-orange-200/60 leading-relaxed">
-            <strong>Cancellation Dread:</strong> Users postpone canceling because they dread re-entering credit card details, reconfiguring API keys, and losing custom workspaces when they need the tool again.
-          </div>
-        </div>
-
-        <div className="card-settled p-6 space-y-3.5">
-          <div className="tag tag-settled text-xs">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            The Solution: The GhostSub Loop
-          </div>
-          <h3 className="text-xl font-bold text-slate-900">
-            Autonomous intervention with zero friction.
-          </h3>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            GhostSub holds persistent memory on Walrus Mainnet. When your usage drops, it cancels flat billing and switches you to Sui micropayments ($0.005/query). Zero wasted capital, zero cancellation dread, zero lost workspaces.
-          </p>
-          <div className="text-xs text-emerald-900 bg-emerald-50/70 p-3 rounded-lg border border-emerald-200/60 leading-relaxed">
-            <strong>Sub-Cent Settlement:</strong> Sui's high-throughput architecture and negligible fees allow true machine-to-machine streaming payments that are impossible on traditional credit card rails.
-          </div>
-        </div>
-      </section>
-
-      {/* ── 5. COMPARISON MATRIX ────────────────────────────────────────── */}
+      {/* ── 5. PROTOCOL COMPARISON MATRIX ────────────────────────────── */}
       <section className="space-y-4">
-        <div className="text-center max-w-xl mx-auto space-y-1">
-          <div className="text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-indigo-600">
-            Protocol Contrast
-          </div>
-          <h2 className="text-2xl font-extrabold text-slate-900">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">
             Traditional SaaS Recurring vs. GhostSub MPP
           </h2>
+          <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+            Architectural contrast across payment rails, usage memory, and cancellation economics.
+          </p>
         </div>
 
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs">
           <table className="w-full text-left text-xs">
             <thead className="border-b border-slate-200 bg-slate-50 font-mono text-slate-600">
               <tr>
-                <th className="py-3.5 px-4 font-bold uppercase tracking-wider">Dimension</th>
-                <th className="py-3.5 px-4 text-orange-700 font-bold uppercase tracking-wider">Traditional SaaS Recurring</th>
-                <th className="py-3.5 px-4 text-indigo-700 font-bold uppercase tracking-wider">GhostSub + Sui MPP</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider">Dimension</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-slate-600">Traditional SaaS</th>
+                <th className="py-3 px-4 font-bold uppercase tracking-wider text-slate-900">GhostSub + Sui MPP</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-sans text-slate-700">
               <tr className="hover:bg-slate-50/50">
                 <td className="py-3 px-4 font-mono font-bold text-slate-900">Idle Period Cost</td>
-                <td className="py-3 px-4 text-slate-500">100% of flat rate ($29.99/mo paid in full)</td>
+                <td className="py-3 px-4 text-slate-500">100% of flat rate ($29.99/mo charged in full)</td>
                 <td className="py-3 px-4 font-mono text-emerald-700 font-bold">$0.00 (Zero idle cost)</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
-                <td className="py-3 px-4 font-mono font-bold text-slate-900">Cancellation Dread</td>
-                <td className="py-3 px-4 text-slate-500">High friction; wipes keys & workspaces</td>
+                <td className="py-3 px-4 font-mono font-bold text-slate-900">Cancellation Friction</td>
+                <td className="py-3 px-4 text-slate-500">High friction; wipes keys & saved workspaces</td>
                 <td className="py-3 px-4 text-slate-900 font-medium">Zero; seamless fallback to on-demand</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
                 <td className="py-3 px-4 font-mono font-bold text-slate-900">Usage Memory</td>
                 <td className="py-3 px-4 text-slate-500">Amnesic; providers profit from forgotten charges</td>
-                <td className="py-3 px-4 text-cyan-800 font-medium">Encrypted Walrus Memory on Mainnet</td>
+                <td className="py-3 px-4 text-sky-800 font-medium">Encrypted Walrus Memory on Mainnet</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
                 <td className="py-3 px-4 font-mono font-bold text-slate-900">Payment Rail</td>
-                <td className="py-3 px-4 text-slate-500">Credit card batch (3% + $0.30 fee)</td>
-                <td className="py-3 px-4 text-slate-900 font-medium">Sui on-chain micro-settlement (~0.001 SUI gas)</td>
+                <td className="py-3 px-4 text-slate-500">Credit card batch (3% + $0.30 fixed fee)</td>
+                <td className="py-3 px-4 text-slate-900 font-medium">Sui micro-settlement (~0.001 SUI gas)</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
                 <td className="py-3 px-4 font-mono font-bold text-slate-900">Auditability</td>
@@ -374,12 +633,12 @@ export function ProductOverview({
         </div>
       </section>
 
-      {/* ── 6. HACKATHON VERIFICATION RECEIPTS ───────────────────────────── */}
-      <section className="card-clean p-6 space-y-4 border-slate-200 bg-white">
+      {/* ── 6. HACKATHON VERIFICATION RECEIPTS ───────────────────────── */}
+      <section className="card-clean p-6 space-y-4 border-slate-200">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-indigo-600" />
+              <ShieldCheck className="h-4 w-4 text-slate-800" />
               Total Recall Hackathon Verification Receipts
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -387,19 +646,19 @@ export function ProductOverview({
             </p>
           </div>
           <span className="tag tag-settled text-xs">
-            ● Mainnet Verified
+            Mainnet Verified
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {receipts.map((r, i) => (
-            <div key={i} className="rounded-lg border border-slate-200 bg-slate-50/80 p-3 space-y-1">
+            <div key={i} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3 space-y-1">
               <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">{r.label}</div>
               <div className="flex items-center justify-between gap-2">
                 <code className="text-xs font-mono text-slate-800 truncate font-semibold">{r.value}</code>
                 <button
                   onClick={() => handleCopy(r.label, r.value)}
-                  className="p-1 text-slate-400 hover:text-indigo-600 transition-colors"
+                  className="p-1 text-slate-400 hover:text-slate-800 transition-colors"
                   title="Copy to clipboard"
                 >
                   {copiedKey === r.label ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
@@ -408,28 +667,6 @@ export function ProductOverview({
             </div>
           ))}
         </div>
-      </section>
-
-      {/* ── 7. BOTTOM BANNER ────────────────────────────────────────────── */}
-      <section className="rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50/50 via-white to-cyan-50/50 p-8 sm:p-12 text-center space-y-4 shadow-sm">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 font-mono text-xs font-bold uppercase tracking-wider">
-          <Zap className="h-3.5 w-3.5" />
-          Ready to experience Day 14 Autopilot Intercept?
-        </div>
-        <h3 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans tracking-tight max-w-xl mx-auto">
-          Scrub the timeline to Day 14 and see GhostSub flip billing live.
-        </h3>
-        <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-          Watch NeuroSync breach its 20% efficiency floor, see the Walrus policy decision update in real-time, and trigger live Sui micropayment settlement.
-        </p>
-        <button
-          onClick={onLaunchConsole}
-          className="btn btn-primary"
-          style={{ padding: "14px 32px", fontSize: "14px" }}
-        >
-          <Zap className="h-4 w-4" />
-          Open Sentinel Cockpit
-        </button>
       </section>
 
     </div>

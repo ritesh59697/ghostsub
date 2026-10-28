@@ -6,10 +6,9 @@
 }
 
 /* ============================================================
-   GhostSub — Sentinel Light Design System
-   Aesthetic: High-Trust Autonomous FinTech Sentinel
-   Palette: Spectral Indigo (#4f46e5), Walrus Cyan (#0284c7),
-            Emerald Mint (#059669), Coral Intercept (#ea580c)
+   GhostSub — Swiss Modern Sentinel Design System
+   Architecture: High-Trust Autonomous FinTech Sentinel
+   Standards: ui-ux-pro-max + impeccable + frontend-design
    ============================================================ */
 
 :root {
@@ -17,28 +16,17 @@
   --bg-canvas:       #f8fafc; /* Crisp pearl slate */
   --surface-card:    #ffffff;
   --surface-subtle:  #f1f5f9;
-  --surface-hover:   #e2e8f0;
+  --surface-hover:   #f8fafc;
   --border-light:    #e2e8f0;
+  --border-subtle:   #f1f5f9;
   --border-strong:   #cbd5e1;
 
-  /* Primary Sentinel Accent — Electric Indigo */
-  --sentinel:        #4f46e5;
-  --sentinel-deep:   #3730a3;
-  --sentinel-light:  #eef2ff;
-  --sentinel-glow:   rgba(79, 70, 229, 0.16);
-
-  /* Walrus Storage Accent — Cyan / Deep Ocean */
-  --walrus-cyan:     #0284c7;
-  --walrus-light:    #f0f9ff;
-  --walrus-glow:     rgba(2, 132, 199, 0.14);
-
-  /* Autonomous Intercept / Alert — Coral Flame */
-  --intercept:       #ea580c;
-  --intercept-light: #fff7ed;
-
-  /* On-Chain Settled — Emerald Mint */
-  --settled:         #059669;
-  --settled-light:   #ecfdf5;
+  /* Intentional Semantic Accents */
+  --primary-ink:     #0f172a; /* Obsidian Slate 900 */
+  --primary-accent:  #2563eb; /* Royal Blue */
+  --walrus-cyan:     #0284c7; /* Sky 600 */
+  --intercept-coral: #e11d48; /* Rose 600 */
+  --settled-emerald: #059669; /* Emerald 600 */
 
   /* Typography Colors */
   --text-title:      #0f172a; /* Slate 900 */
@@ -64,17 +52,17 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Distinct Ghost Sentinel Radar Matrix */
+  /* Sentinel Radar Grid - Crisp & Subtle */
   background-image: radial-gradient(#cbd5e1 1.1px, transparent 1.1px);
   background-size: 24px 24px;
   background-position: 0 0;
 }
 
-/* Typography */
+/* Typography Hierarchy */
 h1, h2, h3, h4, h5 {
   font-family: var(--font-sans);
   color: var(--text-title);
-  line-height: 1.2;
+  line-height: 1.25;
   font-weight: 700;
   letter-spacing: -0.025em;
 }
@@ -87,172 +75,171 @@ pre,
   font-variant-numeric: tabular-nums;
 }
 
-/* ──────────────── Reusable Sentinel Cards (Unique Anti-Copy Anatomy) ──────────────── */
-.card-sentinel {
-  background: var(--surface-card);
-  border: 1px solid var(--border-light);
-  border-top: 3px solid var(--sentinel);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -8px var(--sentinel-glow), 0 1px 3px rgba(0, 0, 0, 0.03);
-}
-
-.card-walrus {
-  background: var(--surface-card);
-  border: 1px solid var(--border-light);
-  border-top: 3px solid var(--walrus-cyan);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -8px var(--walrus-glow), 0 1px 3px rgba(0, 0, 0, 0.03);
-}
-
-.card-intercept {
-  background: var(--surface-card);
-  border: 1px solid var(--border-light);
-  border-top: 3px solid var(--intercept);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -8px rgba(234, 88, 12, 0.12), 0 1px 3px rgba(0, 0, 0, 0.03);
-}
-
-.card-settled {
-  background: var(--surface-card);
-  border: 1px solid var(--border-light);
-  border-top: 3px solid var(--settled);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -8px rgba(5, 150, 105, 0.12), 0 1px 3px rgba(0, 0, 0, 0.03);
-}
-
+/* ──────────────── Swiss Architectural Cards ──────────────── */
 .card-clean {
   background: var(--surface-card);
   border: 1px solid var(--border-light);
   border-radius: 12px;
-  box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
 }
 
-/* ──────────────── Buttons ──────────────── */
+.card-sentinel {
+  background: var(--surface-card);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px -4px rgba(37, 99, 235, 0.08), 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+}
+
+.card-walrus {
+  background: var(--surface-card);
+  border: 1px solid #e0f2fe;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px -4px rgba(2, 132, 199, 0.08), 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+}
+
+.card-intercept {
+  background: var(--surface-card);
+  border: 1px solid #ffe4e6;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px -4px rgba(225, 29, 72, 0.08), 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+}
+
+.card-settled {
+  background: var(--surface-card);
+  border: 1px solid #d1fae5;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px -4px rgba(5, 150, 105, 0.08), 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+}
+
+/* ──────────────── High-Craft Tactile Buttons ──────────────── */
 .btn {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 10px 20px;
+  font-weight: 600;
+  padding: 9px 18px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  border: 1px solid transparent;
+}
+
+.btn:active {
+  transform: scale(0.98);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+  background: var(--primary-ink);
   color: #ffffff;
-  border: 1px solid #4338ca;
-  box-shadow: 0 4px 14px var(--sentinel-glow);
+  border-color: #0f172a;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.28);
+  background: #1e293b;
+  border-color: #1e293b;
+}
+
+.btn-accent {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #1d4ed8;
+  box-shadow: 0 1px 2px 0 rgba(37, 99, 235, 0.2);
+}
+
+.btn-accent:hover {
+  background: #1d4ed8;
 }
 
 .btn-walrus {
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  background: #0284c7;
   color: #ffffff;
-  border: 1px solid #0284c7;
-  box-shadow: 0 4px 14px var(--walrus-glow);
+  border-color: #0369a1;
+  box-shadow: 0 1px 2px 0 rgba(2, 132, 199, 0.2);
 }
 
 .btn-walrus:hover {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.26);
+  background: #0369a1;
 }
 
 .btn-outline {
   background: #ffffff;
   color: var(--text-title);
-  border: 1px solid var(--border-light);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  border-color: var(--border-light);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
 }
 
 .btn-outline:hover {
-  border-color: #6366f1;
-  background: var(--sentinel-light);
-  color: #3730a3;
+  background: var(--surface-subtle);
+  border-color: var(--border-strong);
 }
 
 .btn-sm {
-  padding: 6px 14px;
-  font-size: 11px;
+  padding: 6px 12px;
+  font-size: 12px;
 }
 
-/* ──────────────── Badges & Telemetry Tags ──────────────── */
+/* ──────────────── Semantic Badges & Tags ──────────────── */
 .tag {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 3px 8px;
   font-size: 11px;
-  letter-spacing: 0.05em;
   font-family: var(--font-mono);
-  font-weight: 700;
+  font-weight: 600;
   border-radius: 6px;
-  text-transform: uppercase;
 }
 
 .tag-sentinel {
-  background: var(--sentinel-light);
-  color: #3730a3;
-  border: 1px solid #c7d2fe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
 }
 
 .tag-walrus {
-  background: var(--walrus-light);
+  background: #f0f9ff;
   color: #0369a1;
   border: 1px solid #bae6fd;
 }
 
 .tag-intercept {
-  background: var(--intercept-light);
-  color: #9a3412;
-  border: 1px solid #ffedd5;
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
 }
 
 .tag-settled {
-  background: var(--settled-light);
-  color: #065f46;
+  background: #ecfdf5;
+  color: #047857;
   border: 1px solid #a7f3d0;
 }
 
-/* Radar pulse animation */
-@keyframes radar-pulse {
-  0%   { transform: scale(0.95); opacity: 0.8; }
-  50%  { transform: scale(1.1);  opacity: 1;   }
-  100% { transform: scale(0.95); opacity: 0.8; }
+.tag-neutral {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
 }
 
-.radar-ping {
-  animation: radar-pulse 2.2s infinite ease-in-out;
-}
-
-/* Custom precision range scrubber — Electric Indigo & Cyan */
+/* Custom precision range scrubber */
 input[type="range"]::-webkit-slider-thumb {
   appearance: none;
-  height: 22px;
-  width: 22px;
+  height: 20px;
+  width: 20px;
   border-radius: 9999px;
-  background: #4f46e5;
-  border: 3px solid #ffffff;
+  background: #0f172a;
+  border: 2.5px solid #ffffff;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4), 0 0 0 1px #4338ca;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 0 0 1px #0f172a;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.15);
-  box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.15);
 }
 
 input[type="range"]::-webkit-slider-thumb:active {
@@ -268,13 +255,13 @@ input[type="range"]::-webkit-slider-thumb:active {
   scrollbar-width: none;
 }
 
-/* Subtle clean scrollbars */
+/* Crisp Clean Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #f8fafc;
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
