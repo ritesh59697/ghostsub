@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -27,7 +27,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-zinc-900 font-sans selection:bg-indigo-100 selection:text-indigo-900">
+      <body className="min-h-full flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900">
         {children}
       </body>
     </html>

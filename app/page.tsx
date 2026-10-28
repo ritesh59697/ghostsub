@@ -223,7 +223,7 @@ export default function Home() {
   }, 0);
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 font-sans flex flex-col justify-between">
+    <div className="min-h-screen flex flex-col justify-between">
       {/* ──────────────── TOP BAR: Sentinel Light Navigation ──────────────── */}
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md px-6 py-3.5 shrink-0 shadow-xs">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
