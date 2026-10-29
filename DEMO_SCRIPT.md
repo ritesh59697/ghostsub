@@ -28,8 +28,8 @@
 
 - **Project:** GhostSub — memory-aware subscription finance prototype
 - **Repository:** https://github.com/ritesh59697/ghostsub
-- **Live demo:** replace with the deployed `/demo` URL before publishing
-- **Blog post:** replace with its published URL before publishing
+- **Live demo:** https://ghostsub-cyan.vercel.app/demo
+- **Blog post:** https://medium.com/@riteshwork5969/ghostsub-remembering-the-policy-behind-an-underused-subscription-7b061ddf32d3
 
 ## Capture notes
 

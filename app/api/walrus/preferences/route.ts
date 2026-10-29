@@ -6,7 +6,7 @@ export const maxDuration = 60;
 export async function GET(request: NextRequest) {
   try {
     const profileId = request.nextUrl.searchParams.get("profileId") || "";
-    if (!/^ghostsub-[a-f0-9-]{36}$/.test(profileId)) {
+    if (!/^[a-z0-9-]{16,64}$/.test(profileId)) {
       return NextResponse.json({ error: "A valid demo profile is required." }, { status: 400 });
     }
     const result = await recallBillingPreference(profileId);
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const preference = body.preference;
     const profileId = body.profileId;
-    if (typeof profileId !== "string" || !/^ghostsub-[a-f0-9-]{36}$/.test(profileId)) {
+    if (typeof profileId !== "string" || !/^[a-z0-9-]{16,64}$/.test(profileId)) {
       return NextResponse.json({ error: "A valid demo profile is required." }, { status: 400 });
     }
     if (preference !== "keep_access" && preference !== "pause_when_idle") {

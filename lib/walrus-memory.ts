@@ -25,7 +25,7 @@ function getMemWalClient(): MemWal | null {
 }
 
 // In-memory runtime cache of memories populated with Walrus Mainnet verified entries
-let runtimeMemories: MemoryEntry[] = [];
+const runtimeMemories: MemoryEntry[] = [];
 
 /**
  * Fetch health & status of the Walrus Memory Mainnet relayer
