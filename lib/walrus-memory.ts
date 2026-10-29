@@ -1,5 +1,4 @@
 import { MemoryEntry, WalrusStatus } from "./types";
-import { INITIAL_MEMORIES } from "./mock-data";
 import { MemWal } from "@mysten-incubation/memwal";
 
 const WALRUS_RELAYER_URL = process.env.NEXT_PUBLIC_WALRUS_RELAYER_URL || "https://relayer.memory.walrus.xyz";
@@ -26,12 +25,23 @@ function getMemWalClient(): MemWal | null {
 }
 
 // In-memory runtime cache of memories populated with Walrus Mainnet verified entries
-let runtimeMemories: MemoryEntry[] = [...INITIAL_MEMORIES];
+let runtimeMemories: MemoryEntry[] = [];
 
 /**
  * Fetch health & status of the Walrus Memory Mainnet relayer
  */
 export async function getWalrusStatus(): Promise<WalrusStatus> {
+  if (!getMemWalClient()) {
+    return {
+      online: false,
+      writeReady: false,
+      relayerUrl: WALRUS_RELAYER_URL,
+      accountId: MEMWAL_ACCOUNT_ID,
+      agentId: MEMWAL_AGENT_ID,
+      totalMemoriesStored: 0,
+    };
+  }
+
   try {
     const res = await fetch(`${WALRUS_RELAYER_URL}/health`, {
       method: "GET",
@@ -45,7 +55,7 @@ export async function getWalrusStatus(): Promise<WalrusStatus> {
         relayerUrl: WALRUS_RELAYER_URL,
         accountId: MEMWAL_ACCOUNT_ID,
         agentId: MEMWAL_AGENT_ID,
-        totalMemoriesStored: runtimeMemories.length,
+        totalMemoriesStored: runtimeMemories.filter((memory) => memory.isMainnetVerified).length,
       };
     }
   } catch (err) {
@@ -53,23 +63,63 @@ export async function getWalrusStatus(): Promise<WalrusStatus> {
   }
 
   return {
-    online: true,
-    writeReady: true,
+    online: false,
+    writeReady: false,
     relayerUrl: WALRUS_RELAYER_URL,
     accountId: MEMWAL_ACCOUNT_ID,
     agentId: MEMWAL_AGENT_ID,
-    totalMemoriesStored: runtimeMemories.length,
+    totalMemoriesStored: runtimeMemories.filter((memory) => memory.isMainnetVerified).length,
   };
 }
 
 /**
  * Get all memories stored on Walrus Mainnet, optionally filtered by subscription
  */
-export async function getMemories(subscriptionId?: string): Promise<MemoryEntry[]> {
-  if (!subscriptionId) {
-    return runtimeMemories;
+export async function getMemories(subscriptionId?: string, demoProfileId?: string): Promise<MemoryEntry[]> {
+  return runtimeMemories.filter((memory) =>
+    (!subscriptionId || memory.subscriptionId === subscriptionId) &&
+    (!demoProfileId || memory.demoProfileId === demoProfileId)
+  );
+}
+
+function getDemoNamespace(profileId?: string) {
+  if (!profileId || !/^[a-z0-9-]{16,64}$/.test(profileId)) {
+    throw new Error("A valid browser demo profile is required to scope Walrus Memory.");
   }
-  return runtimeMemories.filter((m) => m.subscriptionId === subscriptionId);
+  return `ghostsub-demo-${profileId}`;
+}
+
+/** Recall this profile's persisted demo preference and payment-preview memories. */
+export async function recallProfileMemories(demoProfileId: string): Promise<MemoryEntry[]> {
+  const client = getMemWalClient();
+  if (!client) return [];
+
+  const namespace = getDemoNamespace(demoProfileId);
+  const [preferences, previews] = await Promise.all([
+    client.recall({ query: "GHOSTSUB_PREFERENCE_V1", limit: 100, sort: "recent", namespace }),
+    client.recall({ query: "SIMULATED_HTTP_402", limit: 100, sort: "recent", namespace }),
+  ]);
+
+  const byBlobId = new Map<string, MemoryEntry>();
+  for (const result of [...preferences.results, ...previews.results]) {
+    if (!result.blob_id || byBlobId.has(result.blob_id)) continue;
+    const isPreference = result.text.includes("GHOSTSUB_PREFERENCE_V1:");
+    byBlobId.set(result.blob_id, {
+      id: result.blob_id,
+      subscriptionId: "sub-neurosync",
+      subscriptionName: "NeuroSync AI Pro",
+      day: 14,
+      timestamp: result.created_at || new Date().toISOString(),
+      type: isPreference ? "USER_PREFERENCE" : "SIMULATION_EVENT",
+      content: result.text,
+      walrusBlobId: result.blob_id,
+      isMainnetVerified: true,
+      source: "walrus-mainnet",
+      demoProfileId,
+    });
+  }
+
+  return [...byBlobId.values()].sort((left, right) => right.timestamp.localeCompare(left.timestamp));
 }
 
 /**
@@ -83,28 +133,14 @@ export async function rememberToWalrus(params: {
   day?: number;
   actionTaken?: string;
   suiTxDigest?: string;
+  demoProfileId?: string;
 }): Promise<MemoryEntry> {
   const client = getMemWalClient();
-  let walrusBlobId = "";
-  let walrusJobId = "";
+  if (!client) throw new Error("Walrus Memory is not configured. Add MEMWAL_PRIVATE_KEY and MEMWAL_ACCOUNT_ID on the server.");
 
-  if (client) {
-    try {
-      const res = await client.rememberAndWait(params.content, undefined, { timeoutMs: 30_000 });
-      walrusBlobId = res.blob_id || "";
-      walrusJobId = res.job_id || res.id || "";
-    } catch (err) {
-      console.warn("Walrus remember on-chain call failed, falling back to deterministic ID:", err);
-    }
-  }
-
-  if (!walrusBlobId) {
-    const randomSuffix = Array.from({ length: 20 }, () =>
-      Math.floor(Math.random() * 16).toString(16)
-    ).join("");
-    walrusBlobId = `wal_blob_${randomSuffix}`;
-    walrusJobId = `job_${Date.now()}_${randomSuffix.slice(0, 8)}`;
-  }
+  const namespace = getDemoNamespace(params.demoProfileId);
+  const res = await client.rememberAndWait(params.content, namespace, { timeoutMs: 45_000 });
+  if (!res.blob_id) throw new Error("Walrus accepted the memory but did not confirm a durable blob yet.");
 
   const newEntry: MemoryEntry = {
     id: `mem-${Date.now()}`,
@@ -114,9 +150,11 @@ export async function rememberToWalrus(params: {
     timestamp: new Date().toISOString(),
     type: params.type ?? "OBSERVATION",
     content: params.content,
-    walrusBlobId,
-    walrusJobId,
+    walrusBlobId: res.blob_id,
+    walrusJobId: res.job_id || res.id || undefined,
     isMainnetVerified: true,
+    source: "walrus-mainnet",
+    demoProfileId: params.demoProfileId,
     actionTaken: params.actionTaken,
     suiTxDigest: params.suiTxDigest,
   };
@@ -129,7 +167,7 @@ export async function rememberToWalrus(params: {
  * Semantic Recall against stored Walrus Memories
  * Queries memories based on meaning, keywords, and relevance
  */
-export async function recallFromWalrus(query: string): Promise<{
+export async function recallFromWalrus(query: string, demoProfileId?: string): Promise<{
   query: string;
   matches: Array<{
     memory: MemoryEntry;
@@ -138,91 +176,51 @@ export async function recallFromWalrus(query: string): Promise<{
   }>;
 }> {
   const client = getMemWalClient();
-  if (client) {
-    try {
-      const recallRes = await client.recall({ query, limit: 5 });
-      if (recallRes && recallRes.results && recallRes.results.length > 0) {
-        const matches = recallRes.results.map((r: any) => {
-          const existing = runtimeMemories.find(
-            (m) => m.content === r.text || r.text.includes(m.content) || m.content.includes(r.text)
-          );
-          const memory = existing || {
-            id: `mem-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-            subscriptionId: "sub-neurosync",
-            subscriptionName: "Walrus On-Chain Memory",
-            day: 14,
-            timestamp: new Date().toISOString(),
-            type: "OBSERVATION" as const,
-            content: r.text,
-            walrusBlobId: r.blob_id || "wal_blob_verified",
-            isMainnetVerified: true,
-          };
-          const relevanceScore = +(1 - Math.min(1, r.distance ?? 0.3)).toFixed(2);
-          return {
-            memory,
-            relevanceScore: Math.max(0.42, relevanceScore),
-            matchedTerms: [query],
-          };
-        });
-        return { query, matches };
-      }
-    } catch (err) {
-      console.warn("Live Walrus recall error, falling back to local scoring:", err);
-    }
-  }
-
-  // Fallback local scoring if offline or unauthenticated
-  const normalized = query.toLowerCase();
-  const tokens = normalized.split(/\s+/).filter((t) => t.length > 2);
-
-  const scored = runtimeMemories.map((mem) => {
-    const memContent = mem.content.toLowerCase();
-    const memName = mem.subscriptionName.toLowerCase();
-    let score = 0;
-    const matched: string[] = [];
-
-    if (memContent.includes(normalized)) {
-      score += 0.5;
-    }
-
-    for (const token of tokens) {
-      if (memContent.includes(token)) {
-        score += 0.2;
-        matched.push(token);
-      }
-      if (memName.includes(token)) {
-        score += 0.3;
-        matched.push(token);
-      }
-      if (mem.type.toLowerCase().includes(token)) {
-        score += 0.15;
-      }
-    }
-
-    if (normalized.includes("why") || normalized.includes("reason") || normalized.includes("policy")) {
-      if (mem.type === "POLICY_CHANGE") score += 0.35;
-    }
-    if (normalized.includes("idle") || normalized.includes("inactiv") || normalized.includes("waste")) {
-      if (mem.type === "ALERT" || mem.content.includes("idle") || mem.content.includes("consecutive")) score += 0.4;
-    }
-    if (normalized.includes("paid") || normalized.includes("spent") || normalized.includes("saved") || normalized.includes("cost")) {
-      if (mem.type === "PAYMENT_EVENT" || mem.content.includes("USDC")) score += 0.4;
-    }
-
-    const finalScore = matched.length > 0 || score > 0 ? Math.min(0.98, Math.max(0.42, +score.toFixed(2))) : 0.15;
-
-    return {
-      memory: mem,
-      relevanceScore: finalScore,
-      matchedTerms: Array.from(new Set(matched)),
+  if (!client) throw new Error("Walrus Memory is not configured. Semantic recall is unavailable.");
+  const namespace = getDemoNamespace(demoProfileId);
+  const recallRes = await client.recall({ query, limit: 5, namespace });
+  const matches = recallRes.results.map((r) => {
+    const memory: MemoryEntry = {
+      id: r.blob_id,
+      subscriptionId: "sub-neurosync",
+      subscriptionName: "NeuroSync AI Pro",
+      day: 14,
+      timestamp: r.created_at || new Date().toISOString(),
+      type: "OBSERVATION",
+      content: r.text,
+      walrusBlobId: r.blob_id,
+      isMainnetVerified: true,
+      source: "walrus-mainnet",
+      demoProfileId,
     };
+    const relevanceScore = +(1 - Math.min(1, r.distance ?? 0.3)).toFixed(2);
+    return { memory, relevanceScore, matchedTerms: [query] };
   });
+  return { query, matches };
+}
 
-  scored.sort((a, b) => b.relevanceScore - a.relevanceScore);
-  const topMatches = scored.filter((s) => s.relevanceScore > 0.3).slice(0, 5);
-
+export async function recallBillingPreference(demoProfileId?: string): Promise<{ preference: "keep_access" | "pause_when_idle" | null; memory: MemoryEntry | null }> {
+  const client = getMemWalClient();
+  if (!client) return { preference: null, memory: null };
+  const namespace = getDemoNamespace(demoProfileId);
+  const recalled = await client.recall({ query: "GHOSTSUB_PREFERENCE_V1 billing preference for NeuroSync API subscription", limit: 10, sort: "recent", namespace });
+  const hit = recalled.results.find((result) => result.text.includes("GHOSTSUB_PREFERENCE_V1:"));
+  if (!hit) return { preference: null, memory: null };
+  const preference = hit.text.includes("GHOSTSUB_PREFERENCE_V1: pause_when_idle") ? "pause_when_idle" : "keep_access";
   return {
-    query,
-    matches: topMatches.length > 0 ? topMatches : scored.slice(0, 3),
+    preference,
+    memory: {
+      id: hit.blob_id,
+      subscriptionId: "sub-neurosync",
+      subscriptionName: "NeuroSync AI Pro",
+      day: 1,
+      timestamp: new Date().toISOString(),
+      type: "USER_PREFERENCE",
+      content: hit.text,
+      walrusBlobId: hit.blob_id,
+      isMainnetVerified: true,
+      source: "walrus-mainnet",
+      demoProfileId,
+    },
   };
 }

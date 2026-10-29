@@ -1,4 +1,5 @@
 export type SubscriptionStatus = 'FLAT_ACTIVE' | 'SUI_MPP_STREAM' | 'DORMANT_PAUSED' | 'KILLED';
+export type BillingPreference = 'keep_access' | 'pause_when_idle';
 
 export interface Subscription {
   id: string;
@@ -28,11 +29,13 @@ export interface MemoryEntry {
   subscriptionName: string;
   day: number;
   timestamp: string;
-  type: 'OBSERVATION' | 'ALERT' | 'POLICY_CHANGE' | 'PAYMENT_EVENT';
+  type: 'OBSERVATION' | 'ALERT' | 'POLICY_CHANGE' | 'PAYMENT_EVENT' | 'USER_PREFERENCE' | 'SIMULATION_EVENT';
   content: string;
   walrusBlobId: string;
   walrusJobId?: string;
   isMainnetVerified: boolean;
+  source?: 'sample' | 'local' | 'walrus-mainnet';
+  demoProfileId?: string;
   actionTaken?: string;
   suiTxDigest?: string;
 }

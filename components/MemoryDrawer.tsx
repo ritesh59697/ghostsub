@@ -11,6 +11,7 @@ import {
   Clock 
 } from "lucide-react";
 import { MemoryEntry, Subscription } from "@/lib/types";
+import { getDemoProfileId } from "@/lib/demo-profile";
 
 interface MemoryDrawerProps {
   isOpen: boolean;
@@ -56,7 +57,7 @@ export function MemoryDrawer({
       const res = await fetch("/api/walrus/recall", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: searchQuery }),
+        body: JSON.stringify({ query: searchQuery, profileId: getDemoProfileId() }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -78,9 +79,9 @@ export function MemoryDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs">
+    <div className="theme-overlay fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs">
       <div 
-        className="relative flex h-full w-full max-w-xl flex-col border-l border-zinc-200 bg-white p-6 text-zinc-900 shadow-2xl overflow-y-auto"
+        className="theme-surface relative flex h-full w-full max-w-xl flex-col border-l border-zinc-200 bg-white p-6 text-zinc-900 shadow-2xl overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -95,11 +96,11 @@ export function MemoryDrawer({
                   Walrus Memory Ledger
                 </h2>
                 <span className="tag tag-walrus text-[10px]">
-                  ● Mainnet
+                  {memories.some((memory) => memory.isMainnetVerified) ? "Live + sample" : "Examples only"}
                 </span>
               </div>
               <p className="text-xs text-zinc-500 mt-0.5">
-                {selectedSubscription ? selectedSubscription.name : "Global Agent Context Store"} · {memories.length} Entries
+                {selectedSubscription ? selectedSubscription.name : "Global Agent Context Store"} · {memories.filter((memory) => memory.isMainnetVerified).length} verified · {memories.filter((memory) => !memory.isMainnetVerified).length} examples
               </p>
             </div>
           </div>
@@ -149,7 +150,7 @@ export function MemoryDrawer({
                   fetch("/api/walrus/recall", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query: chip }),
+                    body: JSON.stringify({ query: chip, profileId: getDemoProfileId() }),
                   })
                     .then((res) => res.json())
                     .then((d) => setSearchResults(d.matches))
@@ -218,7 +219,7 @@ export function MemoryDrawer({
               className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-zinc-50 py-2.5 text-xs font-mono font-bold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition-colors uppercase tracking-wider"
             >
               <Plus className="h-3.5 w-3.5" />
-              <span>Record New Memory to Walrus Mainnet</span>
+              <span>Write a memory to Walrus</span>
             </button>
           ) : (
             <form onSubmit={handleCreateMemory} className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 space-y-2.5 shadow-2xs">
@@ -253,6 +254,7 @@ export function MemoryDrawer({
                   <option value="ALERT">Alert</option>
                   <option value="POLICY_CHANGE">Policy Change</option>
                   <option value="PAYMENT_EVENT">Payment Event</option>
+                  <option value="USER_PREFERENCE">User Preference</option>
                 </select>
 
                 <button
@@ -260,7 +262,7 @@ export function MemoryDrawer({
                   disabled={isAddingMemory || !newContent.trim()}
                   className="btn btn-primary btn-sm py-1.5 px-3"
                 >
-                  {isAddingMemory ? "Signing..." : "Commit Blob"}
+                  {isAddingMemory ? "Writing…" : "Write memory"}
                 </button>
               </div>
             </form>
@@ -270,7 +272,7 @@ export function MemoryDrawer({
         {/* Memory Ledger Entries List */}
         <div className="mt-4 flex-1 space-y-2">
           <div className="flex items-center justify-between text-xs text-zinc-500 pb-1 font-mono uppercase tracking-wider">
-            <span>Verified Blobs ({displayedMemories.length})</span>
+            <span>Memory records ({displayedMemories.length})</span>
             <span className="text-[11px] text-zinc-400 font-normal">Sorted by Timeline</span>
           </div>
 
@@ -300,7 +302,7 @@ export function MemoryDrawer({
                       {mem.subscriptionName}
                     </span>
                     <span className={`tag ${tagClass} text-[10px]`}>
-                      {mem.type}
+                      {mem.type} · {mem.isMainnetVerified ? "verified" : "sample"}
                     </span>
                   </div>
 
@@ -314,15 +316,19 @@ export function MemoryDrawer({
                       <span>Day {mem.day}</span>
                     </div>
 
-                    <a
-                      href={`https://walruscan.com/blob/${mem.walrusBlobId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-zinc-600 hover:text-cyan-700 transition-colors"
-                    >
-                      <span className="truncate max-w-[140px] font-mono">{mem.walrusBlobId}</span>
-                      <ExternalLink className="h-2.5 w-2.5" />
-                    </a>
+                    {mem.isMainnetVerified ? (
+                      <a
+                        href={`https://walruscan.com/blob/${mem.walrusBlobId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-zinc-600 hover:text-cyan-700 transition-colors"
+                      >
+                        <span className="truncate max-w-[140px] font-mono">{mem.walrusBlobId}</span>
+                        <ExternalLink className="h-2.5 w-2.5" />
+                      </a>
+                    ) : (
+                      <span className="truncate max-w-[180px] font-mono text-zinc-500">Example record · no chain receipt</span>
+                    )}
                   </div>
                 </div>
               );

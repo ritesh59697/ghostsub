@@ -1,85 +1,39 @@
-# Stop Paying Flat SaaS Subscriptions for Software You Barely Use: Introducing GhostSub
+# GhostSub: remembering the policy behind an underused subscription
 
-*How we built an autonomous subscription watchdog combining Walrus Memory on Mainnet with Tatum Sui Machine Payment Protocol (x402/MPP) to eliminate subscription decay.*
+*A prototype for the Total Recall hackathon by Tatum and Walrus Memory.*
 
----
+Subscription tools often treat low usage as a simple cancellation signal. But low usage does not tell the whole story: someone may still need occasional access, while someone else may be happy to pause a plan when it sits idle. GhostSub explores a small but useful question for a finance agent: can it remember the user's policy, then make that preference visible when the next decision comes around?
 
-## The Silent Leak in Modern Personal Finance
+## A preference changes the recommendation
 
-Every developer, agency, and knowledge worker knows the feeling. You sign up for an AI research tool or GPU pod subscription for a weekend sprint at $30/month. Three months later, you realize you haven't opened the tab in 45 days—yet the recurring charge quietly drained your card on the 1st of every month.
+GhostSub presents a 30-day sample timeline for one fictional API subscription. Usage falls below a modeled 20% floor on Day 14. At that point, the app can recommend either keeping access through metered billing or pausing the flat plan. The difference comes from a billing policy selected in the demo, rather than from treating every quiet period the same way.
 
-The standard advice is simple: *"Just cancel it."* But human inertia is a real economic friction. We postpone canceling because of the dread of needing the tool again and having to re-enter billing details, reconfigure API keys, and restart our workspaces.
+This walkthrough uses illustrative activity, not a connected account or a person's real subscription history. The savings figures are modeled examples. No subscription is canceled and no payment is sent.
 
-What if your subscription wasn't a rigid, binary decision between paying $30/month or losing access completely? What if an autonomous agent watched your real usage habits, remembered them across weeks and months, and automatically renegotiated your flat bills into sub-cent micro-payments?
+## Walrus Memory makes the preference persistent
 
-Meet **GhostSub**.
+When the visitor saves a policy, the server writes a structured preference to Walrus Memory using the Walrus Memory SDK (`memwal`). The app waits for Walrus to return a blob ID before marking the write verified. On a later load, GhostSub recalls preference records from the current browser-local demo profile and uses the latest saved policy to update the Day 14 recommendation. The Memory Ledger exposes the receipts so the persistence is inspectable.
 
----
+The current profile contains ten confirmed Walrus Mainnet blob receipts: nine synthetic policy scenarios and one earlier payment-preview event. The scenarios are explicitly labeled as synthetic examples; they are not inferred facts about the profile owner. They demonstrate the storage and recall path, not autonomous learning from real usage.
 
-## The Vision: Memory-Driven Machine Finance
+## Tatum provides a live Sui network read
 
-GhostSub is an autonomous subscription watchdog and micro-payment manager built during the **Total Recall: Tatum x Walrus Memory Hackathon**. 
+GhostSub also queries Tatum's Sui GraphQL endpoint for the latest checkpoint. The read is used as network status context in the demo. It does not submit a transaction. The API key stays server-side, and the interface distinguishes this live RPC read from the sample subscription timeline.
 
-It rests on three architectural pillars:
-1. **Permanent Habit Telemetry on Walrus Memory (Mainnet)**: Solving AI agent amnesia with decentralized semantic storage.
-2. **Autonomous Efficiency Watchdog**: Continuous policy evaluation enforcing a minimum 20% utilization floor.
-3. **Machine Payment Protocol (HTTP 402 / Sui MPP)**: Streaming sub-cent micro-settlements over **Tatum Sui Mainnet RPC**.
+## What works today, and what does not
 
----
+The prototype demonstrates a persistent preference loop: choose a policy, store it in Walrus, recall it for the demo profile, and see it change a recommendation. It also includes an HTTP 402 wire preview to explain how usage-based billing could be represented.
 
-## Why Walrus Memory? Solving Agent Amnesia
+That panel is only a preview. There is no wallet approval, payment recipient, signed payload, or on-chain settlement in this build. Likewise, the app does not connect to a real subscription provider or cancel a plan. These are deliberate boundaries so the demo can show what has been integrated without implying that future steps already work.
 
-Most Web3 and AI agents suffer from short-term memory loss. Once a session ends, the agent's context window closes, and historical trends vanish into thin air. 
+## Next steps
 
-With **Walrus Memory on Mainnet**, GhostSub records every interaction as a cryptographically verifiable memory blob:
-- **Observation Blobs**: Daily active session counts, request throughput, and idle power periods.
-- **Alert Blobs**: Telemetry warnings when inactivity spans multiple days.
-- **Policy Change Blobs**: Irreversible audit records when an autonomous renegotiation occurs.
-- **Payment Receipts**: Raw Sui transaction digests and gas costs logged directly to decentralized storage.
+The next milestone is a public deployment with server-side Tatum and Walrus configuration, followed by a recorded walkthrough and a real service/payment flow with explicit user approval. For the hackathon submission, the live demo and this post should be paired with the public source repository.
 
-When GhostSub decides whether to renegotiate a subscription on Day 14, it doesn't make a hasty guess. It performs a **semantic vector recall** against Walrus Memory:
+**Project:** GhostSub — a memory-aware subscription finance prototype
 
-```bash
-# Semantic Recall against decentralized memory
-POST /api/walrus/recall
-{"query": "efficiency threshold breached"}
-```
+**Source:** [github.com/ritesh59697/ghostsub](https://github.com/ritesh59697/ghostsub)
 
-Walrus returns ranked matches with confidence scores (e.g. `0.98` relevance for the Day 14 policy shift), guaranteeing transparent, auditable consumer protection.
+**Published post:** [GhostSub: remembering the policy behind an underused subscription](https://medium.com/@riteshwork5969/ghostsub-remembering-the-policy-behind-an-underused-subscription-7b061ddf32d3)
 
----
-
-## The Turning Point: Autonomous Renegotiation & HTTP 402 on Sui
-
-Here is what happens in practice:
-
-1. **Baseline**: You register 5 developer and consumer subscriptions: NeuroSync AI Pro ($29.99/mo), CloudForge GPU Pods ($39.00/mo), StreamPulse Live ($19.99/mo), ResearchMatrix Terminal ($15.00/mo), and DevSentry Telemetry ($14.00/mo). Total flat baseline: **$117.98/month**.
-2. **Detection**: Over the first 14 days, your usage of NeuroSync drops to just 36 queries over 4 sessions. GhostSub calculates your efficiency score at **8.4%**, well below the configured 20% floor.
-3. **Action**: The agent halts recurring monthly billing and switches the service to the **Sui Machine Payment Protocol (x402 / MPP)**.
-4. **Autonomous Settlement**: The next time your IDE requests an inference query, the API responds with `HTTP 402 Payment Required`. GhostSub signs an autonomous micro-transfer on Sui via **Tatum RPC Gateway** (`sui-mainnet.gateway.tatum.io`), paying $0.005 USDC per query in sub-second finality.
-5. **The Outcome**: Across the full 30 days, you pay **$1.58 in metered micropayments** instead of **$117.98**—protecting **$116.40 in capital** (a 98.7% cost reduction) without losing access for a single second.
-
----
-
-## Deep Dive: The Tatum Sui RPC Integration
-
-Settling micro-transactions at machine speed requires reliable, enterprise-grade RPC infrastructure. GhostSub routes all Sui blockchain interactions through the **Tatum Sui Mainnet Gateway**:
-
-- **Real-Time Checkpoint Feeds**: Live sequence numbers queried via `sui_getLatestCheckpointSequenceNumber`.
-- **Reference Gas Pricing**: Dynamic gas budget calculation via `suix_getReferenceGasPrice`.
-- **Sub-Cent Settlements**: Sui's object-centric model and negligible gas fees (~0.001 SUI) allow true micro-settlement streaming that would be economically impossible on traditional payment rails.
-
----
-
-## Try GhostSub & Verification Receipts
-
-GhostSub is open-source and live:
-
-- **Interactive 30-Day Simulator**: Test the money shot live on the demo dashboard. Drag the timeline scrubber from Day 1 to Day 30 and watch the memory-driven policy shifts occur in real time.
-- **Tatum Account ID**: `act_6a08909eb9111b0e15836f63`
-- **Sui Address**: `0x332974af9e98313432b464caaaa15c2d63e98395c1447b87854c1b66d9e9d1f3`
-- **Walrus Account ID**: `0xdc7b8f516c9e3456818f1b2c4d3aa4d3390425440f098c44a5796255839066b8`
-- **Walrus Agent ID**: `0xa37ba59085c9ca24439459fe0d537cf32c7208455dc4fe01db5da0e14cc0284a`
-- **Verified Memories on Mainnet**: 11 Live Mainnet Blobs
-
-Special thanks to the Tatum and Mysten Labs / Walrus teams for organizing the Total Recall Hackathon!
+**Demo:** pending public deployment

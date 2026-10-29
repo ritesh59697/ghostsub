@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Terminal, CheckCircle2, Copy, Check } from "lucide-react";
+import { X, Terminal, Copy, Check, CircleAlert } from "lucide-react";
 
 interface MppTerminalModalProps {
   isOpen: boolean;
@@ -13,23 +13,17 @@ export function MppTerminalModal({ isOpen, onClose }: MppTerminalModalProps) {
 
   if (!isOpen) return null;
 
-  const samplePayload = `{
-  "protocol": "x402-sui-mpp/v1.0",
-  "client": "GhostSub-Autonomous-Agent",
-  "network": "sui-mainnet",
-  "gateway": "sui-mainnet.gateway.tatum.io",
-  "headers": {
-    "X-402-Payment-Required": "USDC/SUI",
-    "X-402-Rate": "0.005 USDC per query",
-    "X-402-Recipient": "0x8f19ea3c7b89d421...92a1",
-    "X-Walrus-Memory-Ref": "wal_blob_984f88e100aa76c09b14"
-  },
-  "tx_block": {
-    "sender": "0x7c529ea0a4d0c4fab1441b283aa9f61212da172b653f931a8ab273a241f56937",
-    "call": "sui::coin::split_and_transfer",
-    "amount": 5000,
-    "gas_budget": 10000000
-  }
+  const samplePayload = `HTTP/1.1 402 Payment Required
+Content-Type: application/json
+
+{
+  "status": "example only",
+  "service": "NeuroSync AI Pro",
+  "price": "0.005 USDC / query",
+  "network": "Sui Mainnet",
+  "recipient": "configure a service recipient before enabling payment",
+  "walletSignature": "required from the user for a live transfer",
+  "settlement": "not sent by this preview"
 }`;
 
   const copyPayload = () => {
@@ -39,9 +33,9 @@ export function MppTerminalModal({ isOpen, onClose }: MppTerminalModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+    <div className="theme-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
       <div 
-        className="relative w-full max-w-2xl rounded-xl border border-zinc-200 bg-white p-6 text-zinc-900 shadow-2xl overflow-hidden"
+        className="theme-surface relative w-full max-w-2xl rounded-xl border border-zinc-200 bg-white p-6 text-zinc-900 shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -52,9 +46,9 @@ export function MppTerminalModal({ isOpen, onClose }: MppTerminalModalProps) {
             </div>
             <div>
               <h3 className="text-sm font-bold text-zinc-950">
-                Sui Machine Payment Protocol (x402 / MPP) Wire
+                Payment request preview
               </h3>
-              <p className="text-xs text-zinc-500">Autonomous Agent-to-Service Settlement Payload</p>
+              <p className="text-xs text-zinc-500">Example HTTP 402 response · no transaction is submitted</p>
             </div>
           </div>
 
@@ -74,11 +68,11 @@ export function MppTerminalModal({ isOpen, onClose }: MppTerminalModalProps) {
           </div>
           <div className="rounded-lg border border-zinc-200 bg-zinc-50/80 p-3 shadow-2xs">
             <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">Settlement</div>
-            <div className="mt-0.5 font-mono font-semibold text-zinc-900">Sui Mainnet</div>
+            <div className="mt-0.5 font-mono font-semibold text-zinc-900">Preview only</div>
           </div>
           <div className="rounded-lg border border-zinc-200 bg-zinc-50/80 p-3 shadow-2xs">
             <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">Gateway</div>
-            <div className="mt-0.5 font-mono font-semibold text-zinc-900">Tatum RPC</div>
+            <div className="mt-0.5 font-mono font-semibold text-zinc-900">Not connected</div>
           </div>
         </div>
 
@@ -110,9 +104,9 @@ export function MppTerminalModal({ isOpen, onClose }: MppTerminalModalProps) {
 
         {/* Footer */}
         <div className="mt-5 flex items-center justify-between border-t border-zinc-200 pt-3.5 text-xs text-zinc-600">
-          <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
-            <CheckCircle2 className="h-4 w-4" />
-            <span>Eligible for $500 Agent Payments Bonus</span>
+          <div className="flex items-center gap-1.5 text-amber-300 font-medium">
+            <CircleAlert className="h-4 w-4" />
+            <span>Live settlement needs a configured recipient and wallet approval.</span>
           </div>
           <button
             onClick={onClose}

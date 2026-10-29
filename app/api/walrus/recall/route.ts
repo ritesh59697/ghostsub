@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await recallFromWalrus(query);
+    const result = await recallFromWalrus(query, body.profileId);
     return NextResponse.json(result);
   } catch (err: any) {
     return NextResponse.json(

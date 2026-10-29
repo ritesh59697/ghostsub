@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { 
   X, 
   Layers, 
-  CheckCircle2, 
+  CircleAlert,
   Copy, 
   Check, 
   ExternalLink 
@@ -13,9 +13,11 @@ import {
 interface ArchitectureModalProps {
   isOpen: boolean;
   onClose: () => void;
+  walrusWriteCount: number;
+  tatumOnline: boolean;
 }
 
-export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
+export function ArchitectureModal({ isOpen, onClose, walrusWriteCount, tatumOnline }: ArchitectureModalProps) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -49,12 +51,12 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
     },
   ];
 
-  const aiBuilderPrompt = "Build an autonomous subscription watchdog and micro-payment manager called GhostSub. The app connects to Walrus Memory to recall user login habits, session frequency, and subscription costs. When a user is inactive, the agent automatically switches flat monthly subscriptions into per-use Sui micro-payments using Tatum Sui RPC and x402/MPP agent payments, protecting capital and logging every policy change to Walrus Mainnet.";
+  const aiBuilderPrompt = "Build GhostSub, a usage-aware subscription finance prototype. Let a user choose whether to keep API access through metered billing or pause a flat plan when usage falls below a threshold. Store and recall this policy with Walrus Memory, then show an illustrative HTTP 402 payment request. Do not claim a payment was sent unless a wallet-approved Sui transaction is confirmed.";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+    <div className="theme-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
       <div 
-        className="relative max-h-[90vh] w-full max-w-2xl rounded-xl border border-zinc-200 bg-white p-6 text-zinc-900 shadow-2xl overflow-y-auto"
+        className="theme-surface relative max-h-[90vh] w-full max-w-2xl rounded-xl border border-zinc-200 bg-white p-6 text-zinc-900 shadow-2xl overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -65,9 +67,9 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
             </div>
             <div>
               <h3 className="text-sm font-bold text-zinc-950">
-                Architecture & Submission Receipts
+                Architecture & Configuration
               </h3>
-              <p className="text-xs text-zinc-500">Total Recall Hackathon Verified Credentials</p>
+              <p className="text-xs text-zinc-500">Configured project values · live status shown below</p>
             </div>
           </div>
 
@@ -163,17 +165,25 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
               <span className="font-semibold text-zinc-900">relayer.memory.walrus.xyz</span>
             </div>
             <div className="flex items-center justify-between text-zinc-600">
-              <span>Verified Memories Seeded:</span>
-              <span className="text-emerald-700 font-bold">11 Blobs on Mainnet</span>
+              <span>Confirmed writes in this demo:</span>
+              <span className="font-bold text-zinc-900">{walrusWriteCount}</span>
+            </div>
+            <div className="flex items-center justify-between text-zinc-600">
+              <span>Tatum checkpoint status:</span>
+              <span className={`font-bold ${tatumOnline ? "text-emerald-700" : "text-amber-300"}`}>{tatumOnline ? "Connected" : "Unavailable"}</span>
+            </div>
+            <div className="flex items-center justify-between text-zinc-600">
+              <span>Payment settlement:</span>
+              <span className="font-bold text-amber-300">Preview only · no transfer</span>
             </div>
           </div>
         </div>
 
         {/* Footer */}
         <div className="mt-6 flex items-center justify-between border-t border-zinc-200 pt-4 text-xs">
-          <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
-            <CheckCircle2 className="h-4 w-4" />
-            <span>Ready for Hackathon Review</span>
+          <div className="flex items-center gap-1.5 text-amber-300 font-medium">
+            <CircleAlert className="h-4 w-4" />
+            <span>Prototype · integrations need final verification</span>
           </div>
           <button
             onClick={onClose}

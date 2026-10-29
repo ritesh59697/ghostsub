@@ -1,12 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMemories, rememberToWalrus } from "@/lib/walrus-memory";
+import { getMemories, recallProfileMemories, rememberToWalrus } from "@/lib/walrus-memory";
 
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const subId = searchParams.get("subscriptionId") || undefined;
-    const memories = await getMemories(subId);
+    const profileId = searchParams.get("profileId");
+    if (!profileId) {
+      return NextResponse.json({ error: "profileId is required" }, { status: 400 });
+    }
+    const [runtimeMemories, recalledMemories] = await Promise.all([
+      getMemories(subId, profileId),
+      recallProfileMemories(profileId),
+    ]);
+    const memoriesByBlobId = new Map<string, (typeof runtimeMemories)[number]>();
+    for (const memory of [...recalledMemories, ...runtimeMemories]) {
+      if ((!subId || memory.subscriptionId === subId) && memory.walrusBlobId) {
+        memoriesByBlobId.set(memory.walrusBlobId, memory);
+      }
+    }
+    const memories = [...memoriesByBlobId.values()];
     return NextResponse.json({ memories, count: memories.length });
   } catch (err: any) {
     return NextResponse.json(
@@ -34,6 +48,7 @@ export async function POST(req: NextRequest) {
       day: body.day,
       actionTaken: body.actionTaken,
       suiTxDigest: body.suiTxDigest,
+      demoProfileId: body.profileId,
     });
 
     return NextResponse.json({ success: true, memory });

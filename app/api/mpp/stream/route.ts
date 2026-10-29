@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { executeSuiMppPayment } from "@/lib/tatum";
 import { rememberToWalrus } from "@/lib/walrus-memory";
 
 
@@ -8,40 +7,34 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { serviceId, serviceName, amountUsdc, units, unitName, day } = body;
 
-    if (!serviceId || !serviceName || amountUsdc === undefined) {
+    if (!serviceId || !serviceName || typeof amountUsdc !== "number" || !Number.isFinite(amountUsdc) || amountUsdc <= 0) {
       return NextResponse.json(
         { error: "Missing serviceId, serviceName, or amountUsdc" },
         { status: 400 }
       );
     }
 
-    // 1. Execute on Sui via Tatum RPC
-    const suiResult = await executeSuiMppPayment({
-      serviceId,
-      serviceName,
-      amountUsdc,
-      units: units || 1,
-    });
-
-    // 2. Commit the settlement event to Walrus Memory on Mainnet
+    // This is an explicit protocol demo only. No transfer is made until a
+    // configured recipient, token type, and user wallet signature are wired in.
     const memory = await rememberToWalrus({
       subscriptionId: serviceId,
       subscriptionName: serviceName,
       day: day || 30,
-      type: "PAYMENT_EVENT",
-      content: `Autonomous Sui MPP Stream: Settled ${units || 1} ${unitName || "units"} for $${amountUsdc.toFixed(4)} USDC via Tatum RPC. Gas: ${suiResult.gasUsedSui} SUI. Tx: ${suiResult.txDigest}.`,
-      actionTaken: "Sui MPP Micro-settlement confirmed",
-      suiTxDigest: suiResult.txDigest,
+      demoProfileId: body.profileId,
+      type: "SIMULATION_EVENT",
+      content: `SIMULATED_HTTP_402: GhostSub demonstrated a ${units || 1} ${unitName || "unit"} request priced at $${amountUsdc.toFixed(4)} USDC. No Sui transaction was signed or sent.`,
+      actionTaken: "Payment request previewed; no funds transferred",
     });
 
     return NextResponse.json({
       success: true,
-      suiResult,
+      mode: "simulation",
+      settlement: "not_sent",
       memory,
     });
   } catch (err: any) {
     return NextResponse.json(
-      { error: err?.message || "Sui MPP payment execution failed" },
+      { error: err?.message || "Could not record the payment request preview" },
       { status: 500 }
     );
   }
