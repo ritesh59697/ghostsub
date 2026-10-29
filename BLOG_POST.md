@@ -28,7 +28,7 @@ That panel is only a preview. There is no wallet approval, payment recipient, si
 
 ## Next steps
 
-The next milestone is a public deployment with server-side Tatum and Walrus configuration, followed by a recorded walkthrough and a real service/payment flow with explicit user approval. For the hackathon submission, the live demo and this post should be paired with the public source repository.
+The public demo is now deployed with server-side Tatum and Walrus configuration. The next milestone is a recorded walkthrough and a real service/payment flow with explicit user approval. For the hackathon submission, pair the live demo and this post with the public source repository.
 
 **Project:** GhostSub — a memory-aware subscription finance prototype
 
@@ -36,4 +36,4 @@ The next milestone is a public deployment with server-side Tatum and Walrus conf
 
 **Published post:** [GhostSub: remembering the policy behind an underused subscription](https://medium.com/@riteshwork5969/ghostsub-remembering-the-policy-behind-an-underused-subscription-7b061ddf32d3)
 
-**Demo:** pending public deployment
+**Live demo:** [ghostsub-cyan.vercel.app/demo](https://ghostsub-cyan.vercel.app/demo)

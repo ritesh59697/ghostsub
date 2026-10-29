@@ -7,7 +7,7 @@
 - **Official brief and current rules:** https://recall-tatum-walrus.vercel.app/
 - **Project:** GhostSub, a memory-aware subscription finance prototype
 - **Repository:** https://github.com/ritesh59697/ghostsub
-- **Public demo:** Not deployed yet
+- **Public demo:** https://ghostsub-cyan.vercel.app/demo
 
 ## Requirements from the official brief
 
@@ -52,8 +52,8 @@ The official page lists three $500 special awards: Best Walrus Memory, Best Tatu
 - [x] Interactive demo flow and inspectable Memory Ledger
 - [x] Published blog post: https://medium.com/@riteshwork5969/ghostsub-remembering-the-policy-behind-an-underused-subscription-7b061ddf32d3
 - [x] Timed recording plan: `DEMO_SCRIPT.md`
-- [ ] Deploy the app and confirm both integrations in the deployed environment
+- [x] Deploy the app and confirm Tatum latest-checkpoint and Walrus health responses in Production
 - [x] Publish the blog
-- [ ] Replace its demo placeholder with the public demo URL after deployment
+- [x] Add the public demo URL to the blog and project notes
 - [ ] Record and publish a 2–3 minute walkthrough
 - [ ] Final review against the current official rules

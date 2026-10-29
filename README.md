@@ -148,6 +148,6 @@ npm run dev
 - [ ] Implement an actual wallet-approved Sui settlement before claiming x402/MPP payments
 - [x] Publish the blog post
 - [ ] Replace its demo placeholder with the public demo URL after deployment
-- [ ] Deploy the demo and verify Tatum RPC responses from the deployed environment
+- [x] Deploy the demo and verify Tatum RPC and Walrus health responses in Production: https://ghostsub-cyan.vercel.app/demo
 - [ ] Record and publish the 2–3 minute walkthrough
 - [ ] Optional: build primarily with Tatum AI Builder to compete for its special award
