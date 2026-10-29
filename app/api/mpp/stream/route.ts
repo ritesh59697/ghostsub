@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rememberToWalrus } from "@/lib/walrus-memory";
 
+// Walrus `rememberAndWait` can take up to 45 seconds to confirm a durable blob.
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {

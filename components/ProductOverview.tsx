@@ -30,6 +30,7 @@ import {
   Activity
 } from "lucide-react";
 import { BillingPreference, Subscription, MemoryEntry } from "@/lib/types";
+import { getUsageEfficiency } from "@/lib/simulation";
 
 const iconMap: Record<string, React.ElementType> = {
   BrainCircuit,
@@ -110,10 +111,7 @@ export function ProductOverview({
 
   // Calculations for current day
   const isFlipped = currentDay >= 14 && policyPreference === "keep_access";
-  const dayDecayFactor = Math.max(0.1, 1 - (currentDay / 30) * 0.92);
-  const currentEfficiency = isFlipped
-    ? selectedSub.efficiencyScore
-    : +(selectedSub.efficiencyScore + (100 - selectedSub.efficiencyScore) * dayDecayFactor).toFixed(1);
+  const currentEfficiency = getUsageEfficiency(currentDay, selectedSub.efficiencyScore);
   const isBreached = currentEfficiency < selectedSub.thresholdEfficiency;
 
   const totalSavedCurrent = subscriptions.reduce((acc, s) => {
@@ -316,12 +314,10 @@ export function ProductOverview({
               <tbody className="divide-y divide-slate-100">
                 {subscriptions.map((sub) => {
                   const isSelected = sub.id === selectedSub.id;
-                  const dayFactor = currentDay / 30;
-                  const effDecay = Math.max(0.1, 1 - dayFactor * 0.92);
-                  const eff = isFlipped ? sub.efficiencyScore : +(sub.efficiencyScore + (100 - sub.efficiencyScore) * effDecay).toFixed(1);
+                  const eff = getUsageEfficiency(currentDay, sub.efficiencyScore);
                   const breached = eff < sub.thresholdEfficiency;
 
-                  const currentUnits = sub.totalUnitsConsumed * dayFactor;
+                  const currentUnits = sub.totalUnitsConsumed * (currentDay / 30);
                   const currentMppSpent = +(currentUnits * sub.mppRatePerUnit).toFixed(2);
                   const savedAmount = isFlipped ? +(sub.flatMonthlyRate - currentMppSpent).toFixed(2) : 0.0;
 
@@ -401,7 +397,7 @@ export function ProductOverview({
                   </div>
                 </div>
                 <span className={`tag text-[10px] ${isBreached ? "tag-intercept" : "tag-settled"}`}>
-                  {isBreached ? "Dormancy Breach" : "Normal Usage"}
+                  {isBreached ? (currentDay >= 14 ? "Dormancy Breach" : "Usage warning") : "Normal Usage"}
                 </span>
               </div>
 
@@ -435,9 +431,13 @@ export function ProductOverview({
                   <span>
                     <strong>Policy decision · {preferenceIsVerified ? "Walrus memory" : "example policy"}:</strong> pause the flat plan when usage falls below the 20% floor. GhostSub will not start metered billing automatically.
                   </span>
+                ) : currentEfficiency < selectedSub.thresholdEfficiency ? (
+                  <span>
+                    <strong>Early warning:</strong> modeled usage is below the {selectedSub.thresholdEfficiency}% floor. GhostSub keeps monitoring through Day 13, then shows the policy recommendation at Day 14.
+                  </span>
                 ) : (
                   <span>
-                    <strong>Monitoring phase:</strong> the sample timeline is still above the decision point. Save a preference to Walrus to make it available after a reload.
+                    <strong>Monitoring phase:</strong> modeled usage is above the {selectedSub.thresholdEfficiency}% floor. GhostSub continues monitoring before the Day 14 decision point.
                   </span>
                 )}
               </div>
@@ -452,7 +452,7 @@ export function ProductOverview({
                 className="btn btn-primary w-full py-2.5 text-xs font-semibold"
               >
                 {isStreaming ? (
-                  <span>Recording request preview…</span>
+                  <span>Saving request receipt to Walrus…</span>
                 ) : (
                   <>
                     <Zap className="h-3.5 w-3.5 text-emerald-400" />
@@ -460,6 +460,12 @@ export function ProductOverview({
                   </>
                 )}
               </button>
+
+              {isStreaming && (
+                <p role="status" aria-live="polite" className="text-[10px] leading-relaxed text-slate-500">
+                  Walrus is confirming the demo receipt. This can take up to 45 seconds. No Sui payment is sent.
+                </p>
+              )}
 
               {streamSuccessMsg && (
                 <div className="rounded-md border border-emerald-200 bg-emerald-50 p-2 text-[11px] text-emerald-800 font-mono">

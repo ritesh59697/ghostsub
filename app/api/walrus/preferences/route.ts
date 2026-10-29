@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recallBillingPreference, rememberToWalrus } from "@/lib/walrus-memory";
 
+export const maxDuration = 60;
+
 export async function GET(request: NextRequest) {
   try {
     const profileId = request.nextUrl.searchParams.get("profileId") || "";

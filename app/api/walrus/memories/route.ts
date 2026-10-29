@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getMemories, recallProfileMemories, rememberToWalrus } from "@/lib/walrus-memory";
 
+export const maxDuration = 60;
 
 export async function GET(req: NextRequest) {
   try {

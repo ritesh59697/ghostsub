@@ -32,6 +32,7 @@ import { MemoryDrawer } from "@/components/MemoryDrawer";
 import { ProductOverview } from "@/components/ProductOverview";
 import { GhostSubMark } from "@/components/GhostSubMark";
 import { getDemoProfileId } from "@/lib/demo-profile";
+import { getUsageEfficiency } from "@/lib/simulation";
 import Link from "next/link";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -213,6 +214,8 @@ export default function DemoPage() {
     setIsStreaming(true);
     setStreamError(null);
     setStreamSuccessMsg(null);
+    const controller = new AbortController();
+    const requestTimer = window.setTimeout(() => controller.abort(), 50_000);
     try {
       const units = 10;
       const amountUsdc = +(units * sub.mppRatePerUnit).toFixed(4);
@@ -220,6 +223,7 @@ export default function DemoPage() {
       const res = await fetch("/api/mpp/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           serviceId: sub.id,
           serviceName: sub.name,
@@ -243,8 +247,11 @@ export default function DemoPage() {
 
     } catch (err: any) {
       console.error(err);
-      setStreamError(err?.message || "Execution failed");
+      setStreamError(err?.name === "AbortError"
+        ? "Walrus confirmation took too long. Check Verified Writes before retrying. No Sui payment was sent."
+        : err?.message || "Could not record the request preview. No Sui payment was sent.");
     } finally {
+      window.clearTimeout(requestTimer);
       setIsStreaming(false);
     }
   };
@@ -378,7 +385,7 @@ export default function DemoPage() {
                 </div>
                 <div>
               <h2 className="text-sm font-bold text-slate-900">Sentinel Policy Workspace</h2>
-              <span className="text-xs font-mono text-slate-500">Day {currentDay} / 30 · {currentDay >= 14 ? (policyPreference === "keep_access" ? "Metered route recommended" : "Pause route recommended") : "Monitoring"}</span>
+              <span className="text-xs font-mono text-slate-500">Day {currentDay} / 30 · {currentDay >= 14 ? (policyPreference === "keep_access" ? "Metered route recommended" : "Pause route recommended") : getUsageEfficiency(currentDay, selectedSub.efficiencyScore) < selectedSub.thresholdEfficiency ? "Usage warning · decision on Day 14" : "Monitoring"}</span>
                 </div>
               </div>
 
@@ -407,11 +414,9 @@ export default function DemoPage() {
                     {subscriptions.map((sub) => {
                       const isSelected = sub.id === selectedSub.id;
                       const isFlipped = currentDay >= 14 && policyPreference === "keep_access";
-                      const dayFactor = currentDay / 30;
-                      const effDecay = Math.max(0.1, 1 - dayFactor * 0.92);
-                      const eff = isFlipped ? sub.efficiencyScore : +(sub.efficiencyScore + (100 - sub.efficiencyScore) * effDecay).toFixed(1);
+                      const eff = getUsageEfficiency(currentDay, sub.efficiencyScore);
                       const breached = eff < sub.thresholdEfficiency;
-                      const currentUnits = sub.totalUnitsConsumed * dayFactor;
+                      const currentUnits = sub.totalUnitsConsumed * (currentDay / 30);
                       const currentMppSpent = +(currentUnits * sub.mppRatePerUnit).toFixed(2);
                       const saved = isFlipped ? +(sub.flatMonthlyRate - currentMppSpent).toFixed(2) : 0.0;
                       const Icon = iconMap[sub.iconName] || Zap;
@@ -507,7 +512,7 @@ export default function DemoPage() {
                   className="btn btn-primary w-full py-2.5 text-xs font-semibold"
                 >
                   {isStreaming ? (
-                    <span>Recording request preview…</span>
+                    <span>Saving request receipt to Walrus…</span>
                   ) : (
                     <>
                       <Zap className="h-3.5 w-3.5 text-emerald-400" />
@@ -516,9 +521,20 @@ export default function DemoPage() {
                   )}
                 </button>
 
+                {isStreaming && (
+                  <p role="status" aria-live="polite" className="text-[10px] leading-relaxed text-slate-500">
+                    Walrus is confirming the demo receipt. This can take up to 45 seconds. No Sui payment is sent.
+                  </p>
+                )}
+
                 {streamSuccessMsg && (
                   <div className="rounded border border-emerald-200 bg-emerald-50 p-2 text-[11px] text-emerald-800 font-mono">
                     {streamSuccessMsg}
+                  </div>
+                )}
+                {streamError && (
+                  <div role="alert" className="rounded border border-rose-300/30 bg-rose-950/30 p-2 text-[11px] text-rose-200">
+                    {streamError}
                   </div>
                 )}
               </div>

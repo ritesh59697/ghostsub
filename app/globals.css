@@ -287,7 +287,7 @@ input[type="range"]::-webkit-slider-thumb:active {
 }
 
 body { background: var(--landing-paper); background-image: none; color: var(--landing-ink); }
-.site-header { position: sticky; top: 0; z-index: 40; background: rgba(5,10,38,.96); color: #f7f9ff; border-bottom: 1px solid rgba(255,255,255,.11); }
+.site-header { position: sticky; top: 0; z-index: 40; background: #070d27; color: #f7f9ff; border-bottom: 1px solid rgba(255,255,255,.11); }
 .site-nav { min-height: 64px; max-width: 1320px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .brand-mark { display: inline-flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-weight: 680; letter-spacing: -.035em; font-size: 16px; }
 .brand-symbol { width: 34px; height: 34px; flex:none; filter:drop-shadow(0 2px 8px rgba(214,255,56,.12)); }
