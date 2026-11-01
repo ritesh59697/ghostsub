@@ -23,13 +23,32 @@ export interface Subscription {
   thresholdEfficiency: number; // default 20%
 }
 
+export interface PolicyOutcome {
+  verdict: 'confirmed' | 'reversed';
+  preference: BillingPreference;
+  usageAtDecision: number;
+  floorAtDecision: number;
+  day: number;
+  recommendation: string;
+}
+
+export interface LearnedPolicy {
+  floor: number;
+  baselineFloor: number;
+  outcomeCount: number;
+  confirmations: number;
+  reversals: number;
+  isLearned: boolean;
+  rationale: string;
+}
+
 export interface MemoryEntry {
   id: string;
   subscriptionId: string;
   subscriptionName: string;
   day: number;
   timestamp: string;
-  type: 'OBSERVATION' | 'ALERT' | 'POLICY_CHANGE' | 'PAYMENT_EVENT' | 'USER_PREFERENCE' | 'SIMULATION_EVENT';
+  type: 'OBSERVATION' | 'ALERT' | 'POLICY_CHANGE' | 'PAYMENT_EVENT' | 'USER_PREFERENCE' | 'SIMULATION_EVENT' | 'POLICY_OUTCOME';
   content: string;
   walrusBlobId: string;
   walrusJobId?: string;
