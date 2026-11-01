@@ -10,7 +10,7 @@
 ---
 
 ## 💡 The 1-Sentence Hook
-**GhostSub** explores how a usage-aware finance agent could remember a person's billing preferences, spot an underused API subscription, and recommend either a pause or a metered route. This build contains an interactive sample timeline, a real Walrus preference write/recall path when server credentials are configured, and an HTTP 402 preview; it does not cancel a real plan or send a Sui payment.
+**GhostSub** explores how a usage-aware finance agent could learn a person's billing policy, spot an underused API subscription, and recommend either a pause or a metered route. Each decision the user confirms or reverses is written to Walrus Memory as an outcome, and the usage floor that drives the next recommendation is recomputed from those recalled outcomes — so the policy changes with use rather than staying a fixed setting. This build contains an interactive sample timeline, a real Walrus write/recall path when server credentials are configured, and an HTTP 402 preview; it does not cancel a real plan or send a Sui payment.
 
 ---
 
@@ -18,7 +18,7 @@
 
 | Prize Category | Bounty Amount | Implementation Qualification | Status |
 | :--- | :--- | :--- | :---: |
-| **Track 3: Consumer Finance Apps** | **$1,000 track pool** | Track placements: $500 / $300 / $200 | Target |
+| **Track 3: Consumer Finance Apps** | **$1,000 track pool** | Placement split not published for this track | Target |
 | **Best Walrus Memory** | **$500 special award** | Memory should visibly change the product's behavior | Demo loop implemented |
 | **Best Tatum AI Builder App** | **$500 special award** | App built primarily with Tatum AI Builder | Optional |
 | **Best Use of Agent Payments** | **$500 special award** | Requires a real agent payment implementation | Not implemented; preview only |
@@ -75,6 +75,43 @@ When server-side Walrus credentials are configured, the demo saves the selected 
   "subscriptionName": "NeuroSync AI Pro",
   "content": "GHOSTSUB_PREFERENCE_V1: keep_access\\nKeep API access available; recommend metered billing below the 20% floor."
 }
+```
+
+### How the Policy Is Learned
+
+The usage floor is **not** a constant in the source. It starts from the subscription record's `thresholdEfficiency` and is then folded forward over every outcome recalled from this profile's Walrus namespace:
+
+- **Reversed a pause** → the user wanted more headroom, so the floor moves *down* toward the usage that triggered the call.
+- **Reversed a metered route** → it fired too late, so the floor moves *up*.
+- **Confirmed** → the floor tightens toward the level that proved correct.
+
+The floor is clamped to 5–45% so a run of one-sided feedback cannot push it somewhere useless. Verified against live Walrus Mainnet:
+
+```text
+no history         floor 20.0%   (baseline from the subscription record)
++1 reversed pause  floor 15.7%   blob INxQdmVZn3fkChHbbko1a9nAxS3U5gqkZhKgrhZprFc
++2 reversed pause  floor 12.8%   blob bNyFLu2JoX9-sh1_B8rQaHzq8xiy4iD4DR21aPy85vk
+```
+
+Re-reading the floor after a restart returns 15.7% / 12.8% from recall alone — the learning lives in Walrus, not in server memory. Because the floor sets whether usage counts as breached, moving it changes the recommendation the product makes.
+
+```bash
+# Recall the learned floor for a profile
+curl "http://localhost:3000/api/walrus/policy?profileId=<profile>&subscriptionId=sub-neurosync"
+
+# Record an outcome, then see the floor it produces
+curl -X POST http://localhost:3000/api/walrus/policy \
+  -H "Content-Type: application/json" \
+  -d '{"profileId":"<profile>","verdict":"reversed","preference":"pause_when_idle",
+       "usageAtDecision":8.4,"floorAtDecision":20,"day":14,"recommendation":"pause_flat_plan"}'
+```
+
+### Public Memory Proof
+
+Demo memories are scoped to a browser profile namespace, so a reviewer who has never opened the app sees none of them. `/api/ledger` counts durable blobs in the namespaces named by `GHOSTSUB_LEDGER_NAMESPACES`, independent of any browser profile:
+
+```bash
+curl https://ghostsub-cyan.vercel.app/api/ledger
 ```
 
 ### Semantic Recall in Action

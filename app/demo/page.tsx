@@ -25,14 +25,15 @@ import {
   Activity
 } from "lucide-react";
 import { INITIAL_SUBSCRIPTIONS, INITIAL_MEMORIES } from "@/lib/mock-data";
-import { BillingPreference, Subscription, MemoryEntry, TatumStatus, WalrusStatus } from "@/lib/types";
+import { BillingPreference, Subscription, MemoryEntry, TatumStatus, WalrusStatus, LearnedPolicy } from "@/lib/types";
 import { ArchitectureModal } from "@/components/ArchitectureModal";
 import { MppTerminalModal } from "@/components/MppTerminalModal";
 import { MemoryDrawer } from "@/components/MemoryDrawer";
 import { ProductOverview } from "@/components/ProductOverview";
 import { GhostSubMark } from "@/components/GhostSubMark";
 import { getDemoProfileId } from "@/lib/demo-profile";
-import { getUsageEfficiency } from "@/lib/simulation";
+import { getUsageEfficiency, getDecisionDay } from "@/lib/simulation";
+import { learnPolicyFloor, recommendForUsage } from "@/lib/policy-learning";
 import Link from "next/link";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -55,6 +56,11 @@ export default function DemoPage() {
   const [preferenceVerified, setPreferenceVerified] = useState(false);
   const [preferenceSaving, setPreferenceSaving] = useState(false);
   const [preferenceMessage, setPreferenceMessage] = useState<string | null>(null);
+  const [learnedPolicy, setLearnedPolicy] = useState<LearnedPolicy>(
+    learnPolicyFloor(INITIAL_SUBSCRIPTIONS[0].thresholdEfficiency, []),
+  );
+  const [outcomeSaving, setOutcomeSaving] = useState(false);
+  const [outcomeMessage, setOutcomeMessage] = useState<string | null>(null);
 
   // Status & API State
   const [tatumStatus, setTatumStatus] = useState<TatumStatus | null>(null);
@@ -115,6 +121,64 @@ export default function DemoPage() {
       }
     } catch {
       // Keep the clearly labeled sample preference when Walrus is unavailable.
+    }
+  };
+
+  const selectedSub = subscriptions.find((s) => s.id === selectedSubId) || subscriptions[0];
+
+  const fetchLearnedPolicy = async () => {
+    try {
+      const profileId = getDemoProfileId();
+      const res = await fetch(
+        `/api/walrus/policy?profileId=${encodeURIComponent(profileId)}&subscriptionId=${encodeURIComponent(selectedSubId)}`,
+        { cache: "no-store" },
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.policy) setLearnedPolicy(data.policy);
+    } catch {
+      // Keep the baseline floor from the subscription record when recall fails.
+    }
+  };
+
+  /** Write an outcome to Walrus, then adopt the floor it produces. */
+  const recordPolicyOutcome = async (verdict: "confirmed" | "reversed") => {
+    setOutcomeSaving(true);
+    setOutcomeMessage(null);
+    try {
+      const usage = getUsageEfficiency(currentDay, selectedSub);
+      const { recommendation } = recommendForUsage(usage, learnedPolicy.floor, policyPreference);
+      const res = await fetch("/api/walrus/policy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profileId: getDemoProfileId(),
+          subscriptionId: selectedSub.id,
+          verdict,
+          preference: policyPreference,
+          usageAtDecision: usage,
+          floorAtDecision: learnedPolicy.floor,
+          day: currentDay,
+          recommendation,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not record the outcome.");
+
+      if (data.policy) setLearnedPolicy(data.policy);
+      if (data.memory) {
+        setMemories((previous) => [
+          data.memory,
+          ...previous.filter((memory) => memory.walrusBlobId !== data.memory.walrusBlobId),
+        ]);
+      }
+      setOutcomeMessage(
+        `Outcome saved to Walrus Mainnet · floor now ${data.policy?.floor ?? learnedPolicy.floor}%`,
+      );
+    } catch (err) {
+      setOutcomeMessage(err instanceof Error ? err.message : "Could not record the outcome.");
+    } finally {
+      setOutcomeSaving(false);
     }
   };
 
@@ -184,6 +248,7 @@ export default function DemoPage() {
     fetchWalrusStatus();
     fetchProfileMemories();
     fetchPolicyPreference();
+    fetchLearnedPolicy();
     const interval = setInterval(() => {
       fetchTatumStatus();
       fetchWalrusStatus();
@@ -263,7 +328,6 @@ export default function DemoPage() {
   };
 
   // ── Selected Service & Relevant Memories ─────────────────────────
-  const selectedSub = subscriptions.find((s) => s.id === selectedSubId) || subscriptions[0];
 
   const relevantMemories = memories.filter((m) => m.subscriptionId === selectedSub.id);
   const activeMemory =
@@ -273,7 +337,7 @@ export default function DemoPage() {
       .find((m) => m.day <= currentDay) || relevantMemories[0];
 
   const totalSavedCurrent = subscriptions.reduce((acc, s) => {
-    const isFlipped = currentDay >= 14 && policyPreference === "keep_access";
+    const isFlipped = currentDay >= getDecisionDay(s) && policyPreference === "keep_access";
     if (!isFlipped) return acc;
     const dayFactor = currentDay / 30;
     const spent = +(s.totalUnitsConsumed * (currentDay / 30) * s.mppRatePerUnit).toFixed(2);
@@ -349,6 +413,10 @@ export default function DemoPage() {
             isStreaming={isStreaming}
             policyPreference={policyPreference}
             preferenceIsVerified={preferenceVerified}
+            learnedPolicy={learnedPolicy}
+            onRecordOutcome={recordPolicyOutcome}
+            outcomeSaving={outcomeSaving}
+            outcomeMessage={outcomeMessage}
             streamSuccessMsg={streamSuccessMsg}
             streamError={streamError}
             lastTxDigest={lastTxDigest}
@@ -385,7 +453,7 @@ export default function DemoPage() {
                 </div>
                 <div>
               <h2 className="text-sm font-bold text-slate-900">Sentinel Policy Workspace</h2>
-              <span className="text-xs font-mono text-slate-500">Day {currentDay} / 30 · {currentDay >= 14 ? (policyPreference === "keep_access" ? "Metered route recommended" : "Pause route recommended") : getUsageEfficiency(currentDay, selectedSub.efficiencyScore) < selectedSub.thresholdEfficiency ? "Usage warning · decision on Day 14" : "Monitoring"}</span>
+              <span className="text-xs font-mono text-slate-500">Day {currentDay} / 30 · {currentDay >= getDecisionDay(selectedSub) ? (policyPreference === "keep_access" ? "Metered route recommended" : "Pause route recommended") : getUsageEfficiency(currentDay, selectedSub) < learnedPolicy.floor ? `Usage warning · decision on Day ${getDecisionDay(selectedSub)}` : "Monitoring"}</span>
                 </div>
               </div>
 
@@ -413,9 +481,10 @@ export default function DemoPage() {
                   <tbody className="divide-y divide-slate-100">
                     {subscriptions.map((sub) => {
                       const isSelected = sub.id === selectedSub.id;
-                      const isFlipped = currentDay >= 14 && policyPreference === "keep_access";
-                      const eff = getUsageEfficiency(currentDay, sub.efficiencyScore);
-                      const breached = eff < sub.thresholdEfficiency;
+                      const isFlipped = currentDay >= getDecisionDay(sub) && policyPreference === "keep_access";
+                      const eff = getUsageEfficiency(currentDay, sub);
+                      const floor = sub.id === selectedSub.id ? learnedPolicy.floor : sub.thresholdEfficiency;
+                      const breached = eff < floor;
                       const currentUnits = sub.totalUnitsConsumed * (currentDay / 30);
                       const currentMppSpent = +(currentUnits * sub.mppRatePerUnit).toFixed(2);
                       const saved = isFlipped ? +(sub.flatMonthlyRate - currentMppSpent).toFixed(2) : 0.0;
@@ -441,11 +510,11 @@ export default function DemoPage() {
                             <span className={breached ? "text-rose-600 font-bold" : "text-slate-700"}>
                               {eff}%
                             </span>
-                            <span className="text-slate-400 text-[10px] ml-1.5">(Floor: {sub.thresholdEfficiency}%)</span>
+                            <span className="text-slate-400 text-[10px] ml-1.5">(Floor: {floor}%)</span>
                           </td>
                           <td className="py-3 px-2">
                             <span className={`tag text-[10px] ${isFlipped ? "tag-sentinel" : "tag-neutral"}`}>
-                              {isFlipped ? "Metered route · demo" : currentDay >= 14 ? "Paused per preference" : `Flat ($${sub.flatMonthlyRate}/mo)`}
+                              {isFlipped ? "Metered route · demo" : currentDay >= getDecisionDay(sub) ? "Paused per preference" : `Flat ($${sub.flatMonthlyRate}/mo)`}
                             </span>
                           </td>
                           <td className="py-3 pr-5 pl-2 text-right font-mono font-semibold">

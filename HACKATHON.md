@@ -29,7 +29,7 @@
 
 ## Tracks and awards relevant to GhostSub
 
-- **Consumer Finance Apps:** subscription management with learned spend limits is a relevant track fit. Confirm final category naming and prize details on the official page before submitting.
+- **Consumer Finance Apps:** subscription management with a learned usage floor is a relevant track fit. The official page lists $1,000 per track but publishes the $500 / $300 / $200 placement split only for Markets & Sports Prediction, so no placement amount is claimed here.
 - **Best Walrus Memory:** relevant because a recalled billing policy changes the product recommendation.
 - **Best Tatum AI Builder App:** optional; requires building primarily with Tatum AI Builder.
 - **Best Use of Agent Payments:** relevant only if GhostSub implements a real, user-approved payment flow. The current HTTP 402 view is a preview and does not qualify as settlement evidence.

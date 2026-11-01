@@ -29,8 +29,8 @@ import {
   LineChart,
   Activity
 } from "lucide-react";
-import { BillingPreference, Subscription, MemoryEntry } from "@/lib/types";
-import { getUsageEfficiency } from "@/lib/simulation";
+import { BillingPreference, Subscription, MemoryEntry, LearnedPolicy } from "@/lib/types";
+import { getUsageEfficiency, getDecisionDay } from "@/lib/simulation";
 
 const iconMap: Record<string, React.ElementType> = {
   BrainCircuit,
@@ -62,6 +62,10 @@ interface ProductOverviewProps {
   lastTxDigest: string;
   policyPreference: BillingPreference;
   preferenceIsVerified: boolean;
+  learnedPolicy: LearnedPolicy;
+  onRecordOutcome: (verdict: "confirmed" | "reversed") => void;
+  outcomeSaving: boolean;
+  outcomeMessage: string | null;
 }
 
 export function ProductOverview({
@@ -84,6 +88,10 @@ export function ProductOverview({
   lastTxDigest,
   policyPreference,
   preferenceIsVerified,
+  learnedPolicy,
+  onRecordOutcome,
+  outcomeSaving,
+  outcomeMessage,
 }: ProductOverviewProps) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [monthlySpend, setMonthlySpend] = useState<number>(180);
@@ -109,10 +117,13 @@ export function ProductOverview({
   const selectedSub = subscriptions.find((s) => s.id === selectedSubId) || subscriptions[0];
   const SelectedIcon = iconMap[selectedSub.iconName] || Zap;
 
-  // Calculations for current day
-  const isFlipped = currentDay >= 14 && policyPreference === "keep_access";
-  const currentEfficiency = getUsageEfficiency(currentDay, selectedSub.efficiencyScore);
-  const isBreached = currentEfficiency < selectedSub.thresholdEfficiency;
+  // Calculations for current day. The floor is the one recalled from Walrus,
+  // and the decision day comes from the subscription's monitored window.
+  const decisionDay = getDecisionDay(selectedSub);
+  const usageFloor = learnedPolicy.floor;
+  const isFlipped = currentDay >= decisionDay && policyPreference === "keep_access";
+  const currentEfficiency = getUsageEfficiency(currentDay, selectedSub);
+  const isBreached = currentEfficiency < usageFloor;
 
   const totalSavedCurrent = subscriptions.reduce((acc, s) => {
     if (!isFlipped) return acc;
@@ -228,7 +239,7 @@ export function ProductOverview({
                 <span className="font-mono text-base font-bold tabular-nums text-slate-900">
                   Day {currentDay} <span className="text-slate-400 font-normal text-xs">/ 30</span>
                 </span>
-                {currentDay < 14 ? (
+                {currentDay < decisionDay ? (
                   <span className="tag tag-neutral text-[11px]">
                     Monitoring Habits
                   </span>
@@ -314,8 +325,8 @@ export function ProductOverview({
               <tbody className="divide-y divide-slate-100">
                 {subscriptions.map((sub) => {
                   const isSelected = sub.id === selectedSub.id;
-                  const eff = getUsageEfficiency(currentDay, sub.efficiencyScore);
-                  const breached = eff < sub.thresholdEfficiency;
+                  const eff = getUsageEfficiency(currentDay, sub);
+                  const breached = eff < (sub.id === selectedSub.id ? usageFloor : sub.thresholdEfficiency);
 
                   const currentUnits = sub.totalUnitsConsumed * (currentDay / 30);
                   const currentMppSpent = +(currentUnits * sub.mppRatePerUnit).toFixed(2);
@@ -397,7 +408,7 @@ export function ProductOverview({
                   </div>
                 </div>
                 <span className={`tag text-[10px] ${isBreached ? "tag-intercept" : "tag-settled"}`}>
-                  {isBreached ? (currentDay >= 14 ? "Dormancy Breach" : "Usage warning") : "Normal Usage"}
+                  {isBreached ? (currentDay >= decisionDay ? "Dormancy Breach" : "Usage warning") : "Normal Usage"}
                 </span>
               </div>
 
@@ -413,7 +424,7 @@ export function ProductOverview({
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-2.5">
                   <span className="text-[10px] text-slate-500 block">Efficiency Floor</span>
-                  <span className="font-bold text-slate-900">{selectedSub.thresholdEfficiency}%</span>
+                  <span className="font-bold text-slate-900">{usageFloor}%</span>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-2.5">
                   <span className="text-[10px] text-slate-500 block">Current Day Efficiency</span>
@@ -425,21 +436,54 @@ export function ProductOverview({
               <div className="rounded-lg border border-slate-200 bg-white p-3 text-xs text-slate-600 leading-relaxed">
                 {isFlipped ? (
                   <span>
-                    <strong>Policy decision · {preferenceIsVerified ? "Walrus memory" : "example policy"}:</strong> preserve access, so the demo recommends metered billing below the 20% usage floor. The payment button previews the request; it does not send a Sui transaction.
+                    <strong>Policy decision · {preferenceIsVerified ? "Walrus memory" : "example policy"}:</strong> preserve access, so the demo recommends metered billing below the {usageFloor}% usage floor. The payment button previews the request; it does not send a Sui transaction.
                   </span>
-                ) : currentDay >= 14 ? (
+                ) : currentDay >= decisionDay ? (
                   <span>
-                    <strong>Policy decision · {preferenceIsVerified ? "Walrus memory" : "example policy"}:</strong> pause the flat plan when usage falls below the 20% floor. GhostSub will not start metered billing automatically.
+                    <strong>Policy decision · {preferenceIsVerified ? "Walrus memory" : "example policy"}:</strong> pause the flat plan when usage falls below the {usageFloor}% floor. GhostSub will not start metered billing automatically.
                   </span>
-                ) : currentEfficiency < selectedSub.thresholdEfficiency ? (
+                ) : currentEfficiency < usageFloor ? (
                   <span>
-                    <strong>Early warning:</strong> modeled usage is below the {selectedSub.thresholdEfficiency}% floor. GhostSub keeps monitoring through Day 13, then shows the policy recommendation at Day 14.
+                    <strong>Early warning:</strong> modeled usage is below the {usageFloor}% floor. GhostSub keeps monitoring through Day {decisionDay - 1}, then shows the policy recommendation at Day {decisionDay}.
                   </span>
                 ) : (
                   <span>
-                    <strong>Monitoring phase:</strong> modeled usage is above the {selectedSub.thresholdEfficiency}% floor. GhostSub continues monitoring before the Day 14 decision point.
+                    <strong>Monitoring phase:</strong> modeled usage is above the {usageFloor}% floor. GhostSub continues monitoring before the Day {decisionDay} decision point.
                   </span>
                 )}
+              </div>
+
+              {/* Learned floor: outcomes recalled from Walrus move this. */}
+              <div className="rounded-lg border border-sky-200 bg-sky-50/60 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-sky-800">Learned usage floor</span>
+                  <span className="font-mono text-xs font-bold text-sky-900">
+                    {learnedPolicy.baselineFloor}% → {learnedPolicy.floor}%
+                  </span>
+                </div>
+                <p className="text-[10px] leading-relaxed text-slate-600">{learnedPolicy.rationale}</p>
+                {currentDay >= decisionDay && (
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <span className="text-[10px] text-slate-600">Was this the right call?</span>
+                    <button
+                      type="button"
+                      onClick={() => onRecordOutcome("confirmed")}
+                      disabled={outcomeSaving}
+                      className="rounded border border-emerald-300 bg-white px-2 py-1 text-[10px] font-semibold text-emerald-800 disabled:opacity-50"
+                    >
+                      {outcomeSaving ? "Saving…" : "Yes, keep it"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onRecordOutcome("reversed")}
+                      disabled={outcomeSaving}
+                      className="rounded border border-rose-300 bg-white px-2 py-1 text-[10px] font-semibold text-rose-800 disabled:opacity-50"
+                    >
+                      {outcomeSaving ? "Saving…" : "No, too early"}
+                    </button>
+                  </div>
+                )}
+                {outcomeMessage && <p className="text-[10px] text-sky-900">{outcomeMessage}</p>}
               </div>
             </div>
 
@@ -448,7 +492,7 @@ export function ProductOverview({
               <button
                 type="button"
                 onClick={() => onExecuteStream(selectedSub.id)}
-                disabled={isStreaming || currentDay < 14 || policyPreference !== "keep_access"}
+                disabled={isStreaming || currentDay < decisionDay || policyPreference !== "keep_access"}
                 className="btn btn-primary w-full py-2.5 text-xs font-semibold"
               >
                 {isStreaming ? (
@@ -456,7 +500,7 @@ export function ProductOverview({
                 ) : (
                   <>
                     <Zap className="h-3.5 w-3.5 text-emerald-400" />
-                    <span>{policyPreference === "pause_when_idle" ? "Blocked by saved preference" : currentDay < 14 ? "Available after the decision point" : `Preview paid request (${selectedSub.mppRatePerUnit} USDC · no transfer)`}</span>
+                    <span>{policyPreference === "pause_when_idle" ? "Blocked by saved preference" : currentDay < decisionDay ? "Available after the decision point" : `Preview paid request (${selectedSub.mppRatePerUnit} USDC · no transfer)`}</span>
                   </>
                 )}
               </button>

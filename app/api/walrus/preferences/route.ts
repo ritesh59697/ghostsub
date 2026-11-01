@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
     }
 
     const explanation = preference === "keep_access"
-      ? "Keep API access available; when usage falls below the 20% floor, prefer metered billing instead of cutting off access."
-      : "Pause the flat plan when usage falls below the 20% floor; do not switch to metered billing automatically.";
+      ? "Keep API access available; when usage falls below the learned floor, prefer metered billing instead of cutting off access."
+      : "Pause the flat plan when usage falls below the learned floor; do not switch to metered billing automatically.";
     const memory = await rememberToWalrus({
       subscriptionId: "sub-neurosync",
       subscriptionName: "NeuroSync AI Pro",

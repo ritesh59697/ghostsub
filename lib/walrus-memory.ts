@@ -1,5 +1,6 @@
-import { MemoryEntry, WalrusStatus } from "./types";
+import { MemoryEntry, WalrusStatus, LearnedPolicy, PolicyOutcome } from "./types";
 import { MemWal } from "@mysten-incubation/memwal";
+import { OUTCOME_TAG, formatOutcomeMemory, learnPolicyFloor } from "./policy-learning";
 
 const WALRUS_RELAYER_URL = process.env.NEXT_PUBLIC_WALRUS_RELAYER_URL || "https://relayer.memory.walrus.xyz";
 const MEMWAL_ACCOUNT_ID = process.env.MEMWAL_ACCOUNT_ID || process.env.NEXT_PUBLIC_MEMWAL_ACCOUNT_ID || "";
@@ -95,22 +96,24 @@ export async function recallProfileMemories(demoProfileId: string): Promise<Memo
   if (!client) return [];
 
   const namespace = getDemoNamespace(demoProfileId);
-  const [preferences, previews] = await Promise.all([
+  const [preferences, previews, outcomes] = await Promise.all([
     client.recall({ query: "GHOSTSUB_PREFERENCE_V1", limit: 100, sort: "recent", namespace }),
     client.recall({ query: "SIMULATED_HTTP_402", limit: 100, sort: "recent", namespace }),
+    client.recall({ query: OUTCOME_TAG, limit: 100, sort: "recent", namespace }),
   ]);
 
   const byBlobId = new Map<string, MemoryEntry>();
-  for (const result of [...preferences.results, ...previews.results]) {
+  for (const result of [...preferences.results, ...previews.results, ...outcomes.results]) {
     if (!result.blob_id || byBlobId.has(result.blob_id)) continue;
     const isPreference = result.text.includes("GHOSTSUB_PREFERENCE_V1:");
+    const isOutcome = result.text.includes(`${OUTCOME_TAG}:`);
     byBlobId.set(result.blob_id, {
       id: result.blob_id,
       subscriptionId: "sub-neurosync",
       subscriptionName: "NeuroSync AI Pro",
       day: 14,
       timestamp: result.created_at || new Date().toISOString(),
-      type: isPreference ? "USER_PREFERENCE" : "SIMULATION_EVENT",
+      type: isOutcome ? "POLICY_OUTCOME" : isPreference ? "USER_PREFERENCE" : "SIMULATION_EVENT",
       content: result.text,
       walrusBlobId: result.blob_id,
       isMainnetVerified: true,
@@ -223,4 +226,92 @@ export async function recallBillingPreference(demoProfileId?: string): Promise<{
       demoProfileId,
     },
   };
+}
+
+/**
+ * Record a policy outcome on Walrus. These blobs are what the floor is learned
+ * from, so each one directly changes the next recommendation.
+ */
+export async function rememberPolicyOutcome(params: {
+  outcome: PolicyOutcome;
+  subscriptionId: string;
+  subscriptionName: string;
+  demoProfileId: string;
+}): Promise<MemoryEntry> {
+  return rememberToWalrus({
+    subscriptionId: params.subscriptionId,
+    subscriptionName: params.subscriptionName,
+    type: "POLICY_OUTCOME",
+    day: params.outcome.day,
+    demoProfileId: params.demoProfileId,
+    content: formatOutcomeMemory(params.outcome),
+    actionTaken: params.outcome.verdict === "confirmed"
+      ? "User confirmed the recommendation; floor tightened toward this usage level"
+      : "User reversed the recommendation; floor moved away from this usage level",
+  });
+}
+
+/**
+ * Recall this profile's outcome history and fold it into a usage floor.
+ * With no history the baseline from the subscription record is used unchanged.
+ */
+export async function recallLearnedPolicy(
+  baselineFloor: number,
+  demoProfileId?: string,
+): Promise<LearnedPolicy> {
+  const client = getMemWalClient();
+  if (!client || !demoProfileId) return learnPolicyFloor(baselineFloor, []);
+
+  try {
+    const namespace = getDemoNamespace(demoProfileId);
+    const recalled = await client.recall({ query: OUTCOME_TAG, limit: 100, sort: "recent", namespace });
+    const memories: MemoryEntry[] = recalled.results
+      .filter((result) => result.blob_id)
+      .map((result) => ({
+        id: result.blob_id,
+        subscriptionId: "sub-neurosync",
+        subscriptionName: "NeuroSync AI Pro",
+        day: 14,
+        timestamp: result.created_at || new Date().toISOString(),
+        type: "POLICY_OUTCOME",
+        content: result.text,
+        walrusBlobId: result.blob_id,
+        isMainnetVerified: true,
+        source: "walrus-mainnet",
+        demoProfileId,
+      }));
+
+    // Oldest first, so the fold replays history in the order it happened.
+    const chronological = memories
+      .slice()
+      .sort((left, right) => left.timestamp.localeCompare(right.timestamp));
+    return learnPolicyFloor(baselineFloor, chronological);
+  } catch (err) {
+    console.warn("Could not recall learned policy:", err);
+    return learnPolicyFloor(baselineFloor, []);
+  }
+}
+
+/**
+ * Count durable memories for this account's demo namespace prefix, for the
+ * public ledger. Unlike `runtimeMemories` this survives a cold start.
+ */
+export async function countVerifiedMemories(namespaces: string[]): Promise<number> {
+  const client = getMemWalClient();
+  if (!client) return 0;
+
+  const blobIds = new Set<string>();
+  for (const namespace of namespaces) {
+    for (const query of ["GHOSTSUB_PREFERENCE_V1", "SIMULATED_HTTP_402", OUTCOME_TAG]) {
+      try {
+        const recalled = await client.recall({ query, limit: 100, sort: "recent", namespace });
+        for (const result of recalled.results) {
+          if (result.blob_id) blobIds.add(result.blob_id);
+        }
+      } catch {
+        // A namespace with no matching memories is not an error.
+      }
+    }
+  }
+  return blobIds.size;
 }
