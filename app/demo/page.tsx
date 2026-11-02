@@ -370,8 +370,8 @@ export default function DemoPage() {
         <main id="demo" className="flex-1 overflow-y-auto">
           <section className="mx-auto mt-6 grid w-[min(1180px,calc(100%-32px))] gap-4 rounded-2xl border border-slate-700/70 bg-[#0c1635] p-5 text-slate-100 md:grid-cols-[1fr_auto] md:items-center">
             <div>
-              <div className="mb-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-sky-300">
-                <BrainCircuit size={13} /> Remembered policy
+              <div className="mb-2 flex items-center gap-2 text-[12px] font-medium text-sky-300">
+                <BrainCircuit size={16} strokeWidth={1.5} /> Remembered policy
                 <span className={`rounded-full border px-2 py-0.5 text-[9px] tracking-normal ${preferenceVerified ? "border-lime-300/30 bg-lime-300/10 text-lime-200" : "border-slate-500/50 bg-slate-800 text-slate-300"}`}>
                   {preferenceVerified ? "Walrus verified" : "Example preference"}
                 </span>
@@ -452,14 +452,14 @@ export default function DemoPage() {
                   </button>
                 </div>
                 <div>
-              <h2 className="text-sm font-bold text-slate-900">Sentinel Policy Workspace</h2>
+              <h2 className="text-sm font-medium text-slate-900">Sentinel Policy Workspace</h2>
               <span className="text-xs font-mono text-slate-500">Day {currentDay} / 30 · {currentDay >= getDecisionDay(selectedSub) ? (policyPreference === "keep_access" ? "Metered route recommended" : "Pause route recommended") : getUsageEfficiency(currentDay, selectedSub) < learnedPolicy.floor ? `Usage warning · decision on Day ${getDecisionDay(selectedSub)}` : "Monitoring"}</span>
                 </div>
               </div>
 
               <div className="text-right">
                 <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-mono">Modeled Savings</span>
-                <span className="font-mono text-base font-bold tabular-nums text-emerald-600">
+                <span className="font-mono text-base font-medium tabular-nums text-emerald-600">
                   +${totalSavedCurrent.toFixed(2)} / month
                 </span>
               </div>
@@ -507,7 +507,7 @@ export default function DemoPage() {
                             </div>
                           </td>
                           <td className="py-3 px-2 font-mono">
-                            <span className={breached ? "text-rose-600 font-bold" : "text-slate-700"}>
+                            <span className={breached ? "text-rose-600 font-medium" : "text-slate-700"}>
                               {eff}%
                             </span>
                             <span className="text-slate-400 text-[10px] ml-1.5">(Floor: {floor}%)</span>
@@ -535,7 +535,7 @@ export default function DemoPage() {
               <div className="lg:col-span-5 p-6 space-y-4 bg-slate-50/20">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                   <div>
-                    <h3 className="font-bold text-slate-900 text-sm">{selectedSub.name}</h3>
+                    <h3 className="font-medium text-slate-900 text-sm">{selectedSub.name}</h3>
                     <span className="text-[10px] font-mono text-slate-500">{activeMemory.isMainnetVerified ? "Recalled from Walrus Memory" : "Example memory · not verified"}</span>
                   </div>
                   <span className="tag tag-walrus text-[10px]">
@@ -564,11 +564,11 @@ export default function DemoPage() {
                   </div>
                   <div className="flex justify-between text-slate-500">
                     <span>Rate:</span>
-                    <span className="text-slate-900 font-bold">${selectedSub.mppRatePerUnit} USDC / {selectedSub.mppUnitName}</span>
+                    <span className="text-slate-900 font-medium">${selectedSub.mppRatePerUnit} USDC / {selectedSub.mppUnitName}</span>
                   </div>
                   <div className="flex justify-between text-slate-500">
                     <span>Status:</span>
-                    <span className={activeMemory.isMainnetVerified ? "text-emerald-700 font-bold" : "text-slate-500 font-bold"}>
+                    <span className={activeMemory.isMainnetVerified ? "text-emerald-700 font-medium" : "text-slate-500 font-medium"}>
                       {activeMemory.isMainnetVerified ? "Walrus confirmed" : "Sample scenario"}
                     </span>
                   </div>

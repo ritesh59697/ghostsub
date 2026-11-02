@@ -394,7 +394,7 @@ body { background: var(--landing-paper); color: var(--copy); }
 .overview-shell > section:not(.landing-hero) { width:min(1180px,calc(100% - 48px)); margin-left:auto; margin-right:auto; }
 .overview-shell > .cockpit-intro { width:min(1180px,calc(100% - 48px)); }
 .telemetry-row { color:var(--copy); padding-left:0; padding-right:0; }
-.telemetry-row > div { background:#0d1736 !important; border-color:var(--line) !important; color:var(--copy) !important; box-shadow:none !important; border-radius:999px !important; padding:8px 13px !important; }
+.telemetry-row > div { background:#0d1736 !important; border-color:var(--line) !important; color:var(--copy) !important; box-shadow:none !important; border-radius:8px !important; padding:8px 12px !important; }
 .telemetry-row .text-slate-500 { color:var(--muted) !important; }
 .telemetry-row .text-slate-900 { color:#f1f5ff !important; }
 .telemetry-row .bg-emerald-50 { background:rgba(198,247,121,.08) !important; border-color:rgba(198,247,121,.3) !important; }
@@ -421,7 +421,7 @@ body { background: var(--landing-paper); color: var(--copy); }
 .overview-shell .text-rose-600,.overview-shell .text-rose-700 { color:var(--status-red) !important; }
 .overview-shell .bg-rose-50 { background:rgba(255,135,153,.1) !important; }
 .overview-shell .border-rose-200 { border-color:rgba(255,135,153,.27) !important; }
-.overview-shell .tag { border-radius:999px; background:#111e42; border-color:var(--line-bright); color:#c4d2ef; }
+.overview-shell .tag { border-radius:6px; background:#111e42; border-color:var(--line-bright); color:#c4d2ef; }
 .overview-shell .tag-sentinel,.overview-shell .tag-walrus { background:rgba(100,216,255,.1); border-color:rgba(100,216,255,.25); color:var(--status-blue); }
 .overview-shell .tag-intercept { background:rgba(255,135,153,.1); border-color:rgba(255,135,153,.27); color:var(--status-red); }
 .overview-shell .tag-settled { background:rgba(198,247,121,.09); border-color:rgba(198,247,121,.25); color:var(--status-green); }
@@ -489,7 +489,7 @@ body { background: var(--landing-paper); color: var(--copy); }
 .console-shell .bg-rose-50 { background:rgba(255,135,153,.1) !important; }
 .console-shell .border-rose-200 { border-color:rgba(255,135,153,.27) !important; }
 .console-shell .border-emerald-200 { border-color:rgba(198,247,121,.25) !important; }
-.console-shell .tag { background:#111e42; border-color:var(--line-bright); color:#c4d2ef; border-radius:999px; }
+.console-shell .tag { background:#111e42; border-color:var(--line-bright); color:#c4d2ef; border-radius:6px; }
 .console-shell .tag-sentinel,.console-shell .tag-walrus { background:rgba(100,216,255,.1); border-color:rgba(100,216,255,.25); color:var(--status-blue); }
 .console-shell .tag-intercept { background:rgba(255,135,153,.1); border-color:rgba(255,135,153,.27); color:var(--status-red); }
 .console-shell .tag-settled { background:rgba(198,247,121,.09); border-color:rgba(198,247,121,.25); color:var(--status-green); }
@@ -585,3 +585,23 @@ body { background: var(--landing-paper); color: var(--copy); }
   .footer-demo-link { margin-left:auto; }
   .demo-page-intro { width:calc(100% - 32px); padding:34px 0 18px; }
 }
+
+/* Learned usage floor: the demo's one moment, on the shell's own ramp. */
+.overview-shell .floor-panel,.console-shell .floor-panel { border:1px solid var(--line-bright); background:var(--panel-raised); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.overview-shell .floor-panel-head,.console-shell .floor-panel-head { display:flex; align-items:baseline; justify-content:space-between; gap:16px; }
+.overview-shell .floor-panel-label,.console-shell .floor-panel-label { color:#9fb0d0; font-size:12px; }
+.overview-shell .floor-panel-value,.console-shell .floor-panel-value { font-family:var(--font-mono,ui-monospace,monospace); font-size:13px; color:#9fb0d0; font-variant-numeric:tabular-nums; }
+.overview-shell .floor-panel-value strong,.console-shell .floor-panel-value strong { color:var(--landing-lime); font-weight:500; }
+.overview-shell .floor-panel-note,.console-shell .floor-panel-note { margin:0; color:#aebbd4; font-size:12px; line-height:1.5; }
+.overview-shell .floor-panel-ask,.console-shell .floor-panel-ask { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding-top:12px; border-top:1px solid var(--line); }
+.overview-shell .floor-panel-ask > span,.console-shell .floor-panel-ask > span { color:#9fb0d0; font-size:12px; margin-right:4px; }
+.overview-shell .floor-panel-btn,.console-shell .floor-panel-btn { border:1px solid var(--line-bright); background:#101b3b; color:#dce7fb; border-radius:8px; padding:6px 12px; font-size:12px; cursor:pointer; transition:background var(--duration-fast) var(--ease),border-color var(--duration-fast) var(--ease); }
+.overview-shell .floor-panel-btn:hover,.console-shell .floor-panel-btn:hover { background:#16254f; border-color:#3d558a; }
+.overview-shell .floor-panel-btn:active,.console-shell .floor-panel-btn:active { transform:scale(.99); }
+.overview-shell .floor-panel-btn:disabled,.console-shell .floor-panel-btn:disabled { opacity:.5; cursor:default; }
+.overview-shell .floor-panel-msg,.console-shell .floor-panel-msg { margin:0; color:var(--landing-lime); font-size:12px; }
+
+/* Hierarchy comes from size and color, so default element weights come down. */
+.overview-shell th,.console-shell th,
+.overview-shell h3,.console-shell h3,
+.overview-shell strong,.console-shell strong { font-weight:500; }

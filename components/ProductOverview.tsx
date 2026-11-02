@@ -180,14 +180,14 @@ export function ProductOverview({
           <div className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-xs">
             <span className={`h-2 w-2 rounded-full ${checkpointSequence ? "bg-emerald-500 animate-pulse" : "bg-slate-500"}`} />
             <span className="text-slate-500">Tatum Sui RPC:</span>
-            <span className="font-bold text-slate-900">{checkpointSequence ? `#${checkpointSequence.toLocaleString()}` : "Unavailable"}</span>
+            <span className="font-medium text-slate-900">{checkpointSequence ? `#${checkpointSequence.toLocaleString()}` : "Unavailable"}</span>
           </div>
 
           <div className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-xs">
             <span className="text-slate-500">Walrus Mainnet:</span>
             <button
               onClick={onOpenMemoryDrawer}
-              className="font-bold text-sky-700 hover:text-sky-800 transition-colors"
+              className="font-medium text-sky-300 hover:text-sky-200 transition-colors"
             >
               {walrusCount} Verified Writes
             </button>
@@ -195,12 +195,12 @@ export function ProductOverview({
 
           <div className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-xs">
             <span className="text-slate-500">Payment demo:</span>
-            <span className="font-bold text-slate-900">HTTP 402 preview · no transfer</span>
+            <span className="font-medium text-slate-900">HTTP 402 preview · no transfer</span>
           </div>
 
           <div className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-emerald-800 shadow-xs">
             <span className="font-medium text-emerald-700">Modeled savings:</span>
-            <span className="font-bold tabular-nums text-emerald-900">${totalSavedCurrent.toFixed(2)} / mo</span>
+            <span className="font-medium tabular-nums text-emerald-900">${totalSavedCurrent.toFixed(2)} / mo</span>
           </div>
         </div>
 
@@ -236,7 +236,7 @@ export function ProductOverview({
               </div>
 
               <div className="flex items-baseline gap-2">
-                <span className="font-mono text-base font-bold tabular-nums text-slate-900">
+                <span className="font-mono text-base font-medium tabular-nums text-slate-900">
                   Day {currentDay} <span className="text-slate-400 font-normal text-xs">/ 30</span>
                 </span>
                 {currentDay < decisionDay ? (
@@ -295,8 +295,8 @@ export function ProductOverview({
                     className={`rounded-md border px-2.5 py-1 transition-all whitespace-nowrap font-medium ${
                       isActive
                         ? m.day === 14
-                          ? "border-rose-400 bg-rose-50 text-rose-900 font-bold"
-                          : "border-slate-800 bg-slate-900 text-white font-bold"
+                          ? "border-rose-400 bg-rose-50 text-rose-900 font-medium"
+                          : "border-slate-800 bg-slate-900 text-white font-medium"
                         : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 shadow-2xs"
                     }`}
                   >
@@ -403,7 +403,7 @@ export function ProductOverview({
                     <SelectedIcon className="h-3.5 w-3.5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-sm">{selectedSub.name}</h3>
+                    <h3 className="font-medium text-slate-900 text-sm">{selectedSub.name}</h3>
                     <span className="text-[10px] font-mono text-slate-500">{selectedSub.id}</span>
                   </div>
                 </div>
@@ -416,19 +416,19 @@ export function ProductOverview({
               <div className="grid grid-cols-2 gap-2 text-xs font-mono">
                 <div className="rounded-lg border border-slate-200 bg-white p-2.5">
                   <span className="text-[10px] text-slate-500 block">Baseline Plan</span>
-                  <span className="font-bold text-slate-900">${selectedSub.flatMonthlyRate}/mo</span>
+                  <span className="font-medium text-slate-900">${selectedSub.flatMonthlyRate}/mo</span>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-2.5">
                   <span className="text-[10px] text-slate-500 block">Streaming Rate</span>
-                  <span className="font-bold text-slate-900">${selectedSub.mppRatePerUnit} / {selectedSub.mppUnitName}</span>
+                  <span className="font-medium text-slate-900">${selectedSub.mppRatePerUnit} / {selectedSub.mppUnitName}</span>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-2.5">
                   <span className="text-[10px] text-slate-500 block">Efficiency Floor</span>
-                  <span className="font-bold text-slate-900">{usageFloor}%</span>
+                  <span className="font-medium text-slate-900">{usageFloor}%</span>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-2.5">
                   <span className="text-[10px] text-slate-500 block">Current Day Efficiency</span>
-                  <span className={`font-bold ${isBreached ? "text-rose-600" : "text-slate-900"}`}>{currentEfficiency}%</span>
+                  <span className={`font-medium ${isBreached ? "text-rose-600" : "text-slate-900"}`}>{currentEfficiency}%</span>
                 </div>
               </div>
 
@@ -453,23 +453,25 @@ export function ProductOverview({
                 )}
               </div>
 
-              {/* Learned floor: outcomes recalled from Walrus move this. */}
-              <div className="rounded-lg border border-sky-200 bg-sky-50/60 p-3 space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-sky-800">Learned usage floor</span>
-                  <span className="font-mono text-xs font-bold text-sky-900">
-                    {learnedPolicy.baselineFloor}% → {learnedPolicy.floor}%
+              {/* Learned floor: outcomes recalled from Walrus move this.
+                  Styled with the shell's own tokens, not Tailwind light classes. */}
+              <div className="floor-panel">
+                <div className="floor-panel-head">
+                  <span className="floor-panel-label">Learned usage floor</span>
+                  <span className="floor-panel-value">
+                    {learnedPolicy.baselineFloor}% <span aria-hidden="true">→</span>{" "}
+                    <strong>{learnedPolicy.floor}%</strong>
                   </span>
                 </div>
-                <p className="text-[10px] leading-relaxed text-slate-600">{learnedPolicy.rationale}</p>
+                <p className="floor-panel-note">{learnedPolicy.rationale}</p>
                 {currentDay >= decisionDay && (
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <span className="text-[10px] text-slate-600">Was this the right call?</span>
+                  <div className="floor-panel-ask">
+                    <span>Was this the right call?</span>
                     <button
                       type="button"
                       onClick={() => onRecordOutcome("confirmed")}
                       disabled={outcomeSaving}
-                      className="rounded border border-emerald-300 bg-white px-2 py-1 text-[10px] font-semibold text-emerald-800 disabled:opacity-50"
+                      className="floor-panel-btn"
                     >
                       {outcomeSaving ? "Saving…" : "Yes, keep it"}
                     </button>
@@ -477,13 +479,13 @@ export function ProductOverview({
                       type="button"
                       onClick={() => onRecordOutcome("reversed")}
                       disabled={outcomeSaving}
-                      className="rounded border border-rose-300 bg-white px-2 py-1 text-[10px] font-semibold text-rose-800 disabled:opacity-50"
+                      className="floor-panel-btn"
                     >
                       {outcomeSaving ? "Saving…" : "No, too early"}
                     </button>
                   </div>
                 )}
-                {outcomeMessage && <p className="text-[10px] text-sky-900">{outcomeMessage}</p>}
+                {outcomeMessage && <p className="floor-panel-msg">{outcomeMessage}</p>}
               </div>
             </div>
 
@@ -547,7 +549,7 @@ export function ProductOverview({
       {/* ── 3. ASYMMETRIC SWISS ARCHITECTURAL BREAKDOWN ─────────────── */}
       <section className="space-y-6 process-section">
         <div className="space-y-1">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+          <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-slate-900">
             How the autonomous sentinel operates.
           </h2>
           <p className="text-sm text-slate-600 max-w-xl">
@@ -560,10 +562,10 @@ export function ProductOverview({
           {/* Pillar 1 */}
           <div className="space-y-3 md:pr-6">
             <div className="flex items-center justify-between text-xs font-mono text-slate-500">
-              <span className="font-bold text-slate-900">Stage 01</span>
+              <span className="font-medium text-slate-900">Stage 01</span>
               <span>Walrus Mainnet</span>
             </div>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-lg font-medium text-slate-900">
               SEAL-Encrypted Habit Memory
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
@@ -577,34 +579,34 @@ export function ProductOverview({
           {/* Pillar 2 */}
           <div className="space-y-3 pt-6 md:pt-0 md:px-6">
             <div className="flex items-center justify-between text-xs font-mono text-slate-500">
-              <span className="font-bold text-slate-900">Stage 02</span>
+              <span className="font-medium text-slate-900">Stage 02</span>
               <span>Policy Intercept</span>
             </div>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-lg font-medium text-slate-900">
               Day 14 Policy Recommendation
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
               The sample simulation evaluates the selected preference when modeled efficiency drops below its 20% floor. It displays a recommendation; it does not cancel a subscription or change billing automatically.
             </p>
             <div className="pt-2 text-[11px] font-mono text-slate-500">
-              Threshold Rule: <span className="text-rose-600 font-bold">&lt; 20% Efficiency Floor</span>
+              Threshold Rule: <span className="text-rose-600 font-medium">&lt; 20% Efficiency Floor</span>
             </div>
           </div>
 
           {/* Pillar 3 */}
           <div className="space-y-3 pt-6 md:pt-0 md:pl-6">
             <div className="flex items-center justify-between text-xs font-mono text-slate-500">
-              <span className="font-bold text-slate-900">Stage 03</span>
+              <span className="font-medium text-slate-900">Stage 03</span>
               <span>Sui x402 Rail</span>
             </div>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-lg font-medium text-slate-900">
               HTTP 402 Payment Preview
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
               The demo displays an example HTTP 402 request for metered access. It does not submit a payment transaction. A live flow still needs a service recipient, configured token, and wallet approval.
             </p>
             <div className="pt-2 text-[11px] font-mono text-slate-500">
-              Settlement: <span className="text-slate-900 font-bold">Preview only · no transfer</span>
+              Settlement: <span className="text-slate-900 font-medium">Preview only · no transfer</span>
             </div>
           </div>
         </div>
@@ -614,7 +616,7 @@ export function ProductOverview({
       <section className="card-clean recovery-calculator p-6 sm:p-8 space-y-6 border-slate-200">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">
+            <h2 className="text-2xl font-medium text-slate-900">
               Estimate your zombie subscription recovery.
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
@@ -633,7 +635,7 @@ export function ProductOverview({
         <div className="space-y-4">
           <div className="flex items-center justify-between font-mono text-xs text-slate-600">
             <span>Monthly Recurring SaaS Spend (AI APIs, GPU pods, dev tools):</span>
-            <span className="font-bold text-base text-slate-900 tabular-nums">${monthlySpend}/mo</span>
+            <span className="font-medium text-base text-slate-900 tabular-nums">${monthlySpend}/mo</span>
           </div>
           <input
             type="range"
@@ -655,17 +657,17 @@ export function ProductOverview({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
           <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3.5 space-y-1">
             <div className="text-[11px] font-mono text-slate-500">Traditional Flat SaaS</div>
-            <div className="text-lg font-bold text-slate-900 font-mono tabular-nums">${monthlySpend}.00</div>
+            <div className="text-lg font-medium text-slate-900 font-mono tabular-nums">${monthlySpend}.00</div>
             <div className="text-xs text-rose-600">Charged 100% even when idle for weeks</div>
           </div>
           <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3.5 space-y-1">
             <div className="text-[11px] font-mono text-slate-500">Illustrative metered route</div>
-            <div className="text-lg font-bold text-slate-900 font-mono tabular-nums">${estimatedMppCost}.00</div>
+            <div className="text-lg font-medium text-slate-900 font-mono tabular-nums">${estimatedMppCost}.00</div>
             <div className="text-xs text-slate-600">Estimate based on sample usage</div>
           </div>
           <div className="rounded-lg border border-emerald-200 bg-emerald-50/80 p-3.5 space-y-1">
             <div className="text-[11px] font-mono text-emerald-800 font-semibold">Modeled monthly savings</div>
-            <div className="text-lg font-bold text-emerald-700 font-mono tabular-nums">+${estimatedSavings} / month</div>
+            <div className="text-lg font-medium text-emerald-700 font-mono tabular-nums">+${estimatedSavings} / month</div>
             <div className="text-xs text-emerald-700">Illustrative estimate · not realized</div>
           </div>
         </div>
@@ -674,7 +676,7 @@ export function ProductOverview({
       {/* ── 5. PROTOCOL COMPARISON MATRIX ────────────────────────────── */}
       <section className="space-y-4 comparison-section">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">
+          <h2 className="text-2xl font-medium text-slate-900">
             Traditional SaaS Recurring vs. GhostSub MPP
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
@@ -686,34 +688,34 @@ export function ProductOverview({
           <table className="w-full text-left text-xs">
             <thead className="border-b border-slate-200 bg-slate-50 font-mono text-slate-600">
               <tr>
-                <th className="py-3 px-4 font-bold uppercase tracking-wider">Dimension</th>
-                <th className="py-3 px-4 font-bold uppercase tracking-wider text-slate-600">Traditional SaaS</th>
-                <th className="py-3 px-4 font-bold uppercase tracking-wider text-slate-900">GhostSub + Sui MPP</th>
+                <th className="py-3 px-4 font-medium uppercase tracking-wider">Dimension</th>
+                <th className="py-3 px-4 font-medium uppercase tracking-wider text-slate-600">Traditional SaaS</th>
+                <th className="py-3 px-4 font-medium uppercase tracking-wider text-slate-900">GhostSub + Sui MPP</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-sans text-slate-700">
               <tr className="hover:bg-slate-50/50">
-                <td className="py-3 px-4 font-mono font-bold text-slate-900">Idle Period Cost</td>
+                <td className="py-3 px-4 font-mono font-medium text-slate-900">Idle Period Cost</td>
                 <td className="py-3 px-4 text-slate-500">100% of flat rate ($29.99/mo charged in full)</td>
-                <td className="py-3 px-4 font-mono text-emerald-700 font-bold">Depends on the provider’s metered plan</td>
+                <td className="py-3 px-4 font-mono text-emerald-700 font-medium">Depends on the provider’s metered plan</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
-                <td className="py-3 px-4 font-mono font-bold text-slate-900">Cancellation Friction</td>
+                <td className="py-3 px-4 font-mono font-medium text-slate-900">Cancellation Friction</td>
                 <td className="py-3 px-4 text-slate-500">High friction; wipes keys & saved workspaces</td>
                 <td className="py-3 px-4 text-slate-900 font-medium">Could preserve access with opt-in metered billing</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
-                <td className="py-3 px-4 font-mono font-bold text-slate-900">Usage Memory</td>
+                <td className="py-3 px-4 font-mono font-medium text-slate-900">Usage Memory</td>
                 <td className="py-3 px-4 text-slate-500">Amnesic; providers profit from forgotten charges</td>
-                <td className="py-3 px-4 text-sky-800 font-medium">Preference and activity receipts in Walrus Memory, when configured</td>
+                <td className="py-3 px-4 text-slate-300 font-medium">Preference and activity receipts in Walrus Memory, when configured</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
-                <td className="py-3 px-4 font-mono font-bold text-slate-900">Payment Rail</td>
+                <td className="py-3 px-4 font-mono font-medium text-slate-900">Payment Rail</td>
                 <td className="py-3 px-4 text-slate-500">Credit card batch (3% + $0.30 fixed fee)</td>
                 <td className="py-3 px-4 text-slate-900 font-medium">Sui micro-settlement (~0.001 SUI gas)</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
-                <td className="py-3 px-4 font-mono font-bold text-slate-900">Auditability</td>
+                <td className="py-3 px-4 font-mono font-medium text-slate-900">Auditability</td>
                 <td className="py-3 px-4 text-slate-500">Opaque monthly PDF invoices</td>
                 <td className="py-3 px-4 font-mono text-slate-900 font-medium">Walrus blob receipt after a successful write; no payment digest</td>
               </tr>
@@ -726,7 +728,7 @@ export function ProductOverview({
       <section className="card-clean receipts-section p-6 space-y-4 border-slate-200">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
           <div>
-            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+            <h3 className="text-base font-medium text-slate-900 flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-slate-800" />
               Integration Configuration
             </h3>
