@@ -34,9 +34,9 @@ export async function POST(req: NextRequest) {
       settlement: "not_sent",
       memory,
     });
-  } catch (err: any) {
+  } catch (err) {
     return NextResponse.json(
-      { error: err?.message || "Could not record the payment request preview" },
+      { error: (err instanceof Error && err.message) || "Could not record the payment request preview" },
       { status: 500 }
     );
   }

@@ -6,9 +6,9 @@ export async function GET() {
   try {
     const status = await getWalrusStatus();
     return NextResponse.json(status);
-  } catch (err: any) {
+  } catch (err) {
     return NextResponse.json(
-      { error: err?.message || "Failed to query Walrus status" },
+      { error: (err instanceof Error && err.message) || "Failed to query Walrus status" },
       { status: 500 }
     );
   }

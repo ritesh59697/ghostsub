@@ -13,6 +13,8 @@ import {
 import { MemoryEntry, Subscription } from "@/lib/types";
 import { getDemoProfileId } from "@/lib/demo-profile";
 
+type RecallResult = { memory: MemoryEntry; relevanceScore: number };
+
 interface MemoryDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -32,7 +34,7 @@ export function MemoryDrawer({
 }: MemoryDrawerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<any[] | null>(null);
+  const [searchResults, setSearchResults] = useState<RecallResult[] | null>(null);
 
   // New Memory form state
   const [showAddForm, setShowAddForm] = useState(false);
@@ -158,7 +160,7 @@ export function MemoryDrawer({
                 }}
                 className="rounded border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] text-zinc-600 hover:border-indigo-400 hover:text-indigo-700 transition-colors font-mono"
               >
-                "{chip}"
+                &quot;{chip}&quot;
               </button>
             ))}
           </div>
@@ -247,7 +249,7 @@ export function MemoryDrawer({
               <div className="flex items-center justify-between">
                 <select
                   value={newType}
-                  onChange={(e) => setNewType(e.target.value as any)}
+                  onChange={(e) => setNewType(e.target.value as MemoryEntry["type"])}
                   className="rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-xs text-zinc-700 focus:outline-none font-mono"
                 >
                   <option value="OBSERVATION">Observation</option>

@@ -23,9 +23,9 @@ export async function GET(req: NextRequest) {
     }
     const memories = [...memoriesByBlobId.values()];
     return NextResponse.json({ memories, count: memories.length });
-  } catch (err: any) {
+  } catch (err) {
     return NextResponse.json(
-      { error: err?.message || "Failed to fetch memories" },
+      { error: (err instanceof Error && err.message) || "Failed to fetch memories" },
       { status: 500 }
     );
   }
@@ -53,9 +53,9 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, memory });
-  } catch (err: any) {
+  } catch (err) {
     return NextResponse.json(
-      { error: err?.message || "Failed to commit memory to Walrus" },
+      { error: (err instanceof Error && err.message) || "Failed to commit memory to Walrus" },
       { status: 500 }
     );
   }
