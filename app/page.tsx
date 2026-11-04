@@ -9,7 +9,7 @@ const stages = [
     label: "Remember usage",
     title: "A clear record of activity",
     description:
-      "The prototype stores a chosen billing preference with Walrus Memory when configured; its usage timeline is sample data.",
+      "Your billing preference is saved to Walrus Memory, so every visit starts from the choice you made.",
   },
   {
     number: "02",
@@ -17,7 +17,7 @@ const stages = [
     label: "Spot the idle",
     title: "Catch the quiet subscriptions",
     description:
-      "The sample timeline applies the selected policy below a threshold and shows a recommendation. It does not change a subscription.",
+      "When usage falls below your learned floor, GhostSub flags the subscription and recommends a billing policy.",
   },
   {
     number: "03",
@@ -25,7 +25,7 @@ const stages = [
     label: "Pay as you use",
     title: "Keep the service available",
     description:
-      "An HTTP 402 preview illustrates a possible per-request flow. This build does not submit a Sui payment.",
+      "Access continues through per-request x402 payments, priced in USDC as the service is used.",
   },
 ];
 
@@ -102,13 +102,14 @@ export default function Home() {
               </article>
             ))}
           </div>
+          <p className="landing-note">Prototype: the usage timeline is sample data, and this build sends no Sui payment. The demo previews requests and never submits a transaction.</p>
         </section>
 
         <section className="landing-infrastructure" id="infrastructure">
           <div className="infrastructure-copy">
             <span className="section-kicker">Built for autonomous software</span>
             <h2>Usage memory meets machine payments.</h2>
-            <p>GhostSub is a prototype using Walrus Memory for preference and activity records. Explore the walkthrough to see a simulated policy decision and an HTTP 402 payment preview.</p>
+            <p>GhostSub keeps preference and activity records in Walrus Memory. Walk through a simulated policy decision and an HTTP 402 payment preview.</p>
           </div>
           <Link href="/demo" className="hero-cta">Open the interactive demo <ArrowRight size={16} aria-hidden="true" /></Link>
           <div className="infrastructure-rail" aria-hidden="true">
