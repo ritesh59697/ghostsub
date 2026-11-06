@@ -108,6 +108,12 @@ export const INITIAL_SUBSCRIPTIONS: Subscription[] = [
   },
 ];
 
+/** Starting floor for a subscription with no recalled outcomes, from its own record. */
+export function baselineFloorFor(subscriptionId: string, fallback: number): number {
+  const subscription = INITIAL_SUBSCRIPTIONS.find((item) => item.id === subscriptionId);
+  return subscription ? subscription.thresholdEfficiency : fallback;
+}
+
 export const INITIAL_MEMORIES: MemoryEntry[] = [
   {
     id: "mem-01",

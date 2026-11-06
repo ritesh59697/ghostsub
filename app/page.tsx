@@ -25,7 +25,7 @@ const stages = [
     label: "Pay as you use",
     title: "Keep the service available",
     description:
-      "Access continues through per-request x402 payments, priced in USDC as the service is used.",
+      "Instead of cancelling, GhostSub can route you to per-request billing. The demo previews that HTTP 402 request; it does not send a payment.",
   },
 ];
 
@@ -107,13 +107,13 @@ export default function Home() {
 
         <section className="landing-infrastructure" id="infrastructure">
           <div className="infrastructure-copy">
-            <span className="section-kicker">Built for autonomous software</span>
-            <h2>Usage memory meets machine payments.</h2>
-            <p>GhostSub keeps preference and activity records in Walrus Memory. Walk through a simulated policy decision and an HTTP 402 payment preview.</p>
+            <span className="section-kicker">Built on Walrus and Tatum</span>
+            <h2>A policy that lives in memory.</h2>
+            <p>Every call you keep or reverse is stored on Walrus Mainnet, and the floor is rebuilt from that history on each visit. Tatum supplies a live Sui network read.</p>
           </div>
           <Link href="/demo" className="hero-cta">Open the interactive demo <ArrowRight size={16} aria-hidden="true" /></Link>
           <div className="infrastructure-rail" aria-hidden="true">
-            <span>WALRUS MEMORY</span><i /><span>POLICY INTERCEPT</span><i /><span>SUI x402</span>
+            <span>WALRUS MEMORY</span><i /><span>LEARNED FLOOR</span><i /><span>TATUM SUI RPC</span>
           </div>
         </section>
       </main>
@@ -122,7 +122,7 @@ export default function Home() {
         <Link href="/" className="brand-mark" aria-label="GhostSub home">
           <GhostSubMark className="brand-symbol" /><span>GhostSub</span>
         </Link>
-        <span>Autonomous subscription monitoring on Sui.</span>
+        <span>Subscription decisions that learn from you.</span>
         <Link href="/demo" className="footer-demo-link">Try the demo <ArrowRight size={13} aria-hidden="true" /></Link>
       </footer>
     </div>

@@ -59,6 +59,8 @@ export default function DemoPage() {
   const [learnedPolicy, setLearnedPolicy] = useState<LearnedPolicy>(
     learnPolicyFloor(INITIAL_SUBSCRIPTIONS[0].thresholdEfficiency, []),
   );
+  const [publicMemoryCount, setPublicMemoryCount] = useState<number | null>(null);
+  const [referencePolicy, setReferencePolicy] = useState<LearnedPolicy | null>(null);
   const [outcomeSaving, setOutcomeSaving] = useState(false);
   const [outcomeMessage, setOutcomeMessage] = useState<string | null>(null);
 
@@ -105,6 +107,30 @@ export default function DemoPage() {
       setWalrusError(null);
     } catch (err) {
       setWalrusError((err instanceof Error && err.message) || "Walrus Relayer Offline");
+    }
+  };
+
+  // Durable Mainnet count for the whole app, so a first visit does not read as zero.
+  const fetchPublicMemoryCount = async () => {
+    try {
+      const res = await fetch("/api/ledger", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.configured && Number.isFinite(data.verifiedMemoryCount)) setPublicMemoryCount(data.verifiedMemoryCount);
+    } catch {
+      // Fall back to this profile's own count.
+    }
+  };
+
+  // A recorded learning run, shown until this profile records outcomes of its own.
+  const fetchReferencePolicy = async () => {
+    try {
+      const res = await fetch(`/api/walrus/reference?subscriptionId=${encodeURIComponent(selectedSubId)}`, { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.policy?.isLearned) setReferencePolicy(data.policy);
+    } catch {
+      // Without a reference run the panel shows only this profile's floor.
     }
   };
 
@@ -250,6 +276,8 @@ export default function DemoPage() {
     fetchProfileMemories();
     fetchPolicyPreference();
     fetchLearnedPolicy();
+    fetchPublicMemoryCount();
+    fetchReferencePolicy();
     const interval = setInterval(() => {
       fetchTatumStatus();
       fetchWalrusStatus();
@@ -402,6 +430,8 @@ export default function DemoPage() {
             onOpenMemoryDrawer={() => setIsMemoryDrawerOpen(true)}
             onOpenArchitecture={() => setIsArchitectureOpen(true)}
             walrusCount={memories.filter((memory) => memory.isMainnetVerified).length}
+            publicMemoryCount={publicMemoryCount}
+            referencePolicy={referencePolicy}
             checkpointSequence={tatumStatus?.checkpointSequence || 0}
             currentDay={currentDay}
             setCurrentDay={setCurrentDay}
