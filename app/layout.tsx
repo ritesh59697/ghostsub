@@ -13,8 +13,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GhostSub — Autonomous Subscription Watchdog",
-  description: "Autonomous subscription efficiency watchdog powered by Walrus Memory and Tatum Sui RPC micropayments.",
+  title: "GhostSub — Subscription decisions that learn from you",
+  description: "GhostSub learns when a subscription has gone idle from the calls you keep and reverse, stored on Walrus Memory, with live Sui network reads from Tatum.",
 };
 
 export default function RootLayout({

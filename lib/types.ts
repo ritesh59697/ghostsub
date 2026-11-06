@@ -32,6 +32,13 @@ export interface PolicyOutcome {
   recommendation: string;
 }
 
+/** The floor after one recalled outcome, with the Walrus blob that recorded it. */
+export interface FloorStep {
+  verdict: PolicyOutcome['verdict'];
+  floor: number;
+  blobId: string;
+}
+
 export interface LearnedPolicy {
   floor: number;
   baselineFloor: number;
@@ -40,6 +47,7 @@ export interface LearnedPolicy {
   reversals: number;
   isLearned: boolean;
   rationale: string;
+  steps: FloorStep[];
 }
 
 export interface MemoryEntry {

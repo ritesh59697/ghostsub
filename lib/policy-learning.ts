@@ -1,4 +1,4 @@
-import type { BillingPreference, MemoryEntry, PolicyOutcome, LearnedPolicy } from "./types";
+import type { BillingPreference, FloorStep, MemoryEntry, PolicyOutcome, LearnedPolicy } from "./types";
 
 /**
  * Outcome memories are the unit of learning. Each one records what GhostSub
@@ -75,10 +75,14 @@ function clampFloor(value: number): number {
  * from the subscription record, not from a constant in this module.
  */
 export function learnPolicyFloor(baselineFloor: number, memories: MemoryEntry[]): LearnedPolicy {
-  const outcomes = extractOutcomes(memories);
+  const recorded = memories
+    .map((memory) => ({ outcome: parseOutcomeMemory(memory.content), blobId: memory.walrusBlobId || "" }))
+    .filter((entry): entry is { outcome: PolicyOutcome; blobId: string } => entry.outcome !== null);
+  const outcomes = recorded.map((entry) => entry.outcome);
   let floor = clampFloor(baselineFloor);
+  const steps: FloorStep[] = [];
 
-  for (const outcome of outcomes) {
+  for (const { outcome, blobId } of recorded) {
     const target = outcome.verdict === "reversed"
       ? (outcome.preference === "pause_when_idle"
         ? outcome.usageAtDecision / REVERSAL_MARGIN
@@ -86,6 +90,7 @@ export function learnPolicyFloor(baselineFloor: number, memories: MemoryEntry[])
       : outcome.usageAtDecision;
 
     floor = clampFloor(floor + (target - floor) * LEARNING_RATE);
+    steps.push({ verdict: outcome.verdict, floor, blobId });
   }
 
   const confirmations = outcomes.filter((outcome) => outcome.verdict === "confirmed").length;
@@ -101,6 +106,7 @@ export function learnPolicyFloor(baselineFloor: number, memories: MemoryEntry[])
     rationale: outcomes.length === 0
       ? `No outcome history recalled yet. Using the ${clampFloor(baselineFloor)}% starting floor from the subscription record.`
       : `Floor learned from ${outcomes.length} recalled outcome${outcomes.length === 1 ? "" : "s"} on Walrus (${confirmations} confirmed, ${reversals} reversed): ${clampFloor(baselineFloor)}% → ${floor}%.`,
+    steps,
   };
 }
 

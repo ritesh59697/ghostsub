@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { BillingPreference, Subscription, MemoryEntry, LearnedPolicy } from "@/lib/types";
 import { getUsageEfficiency, getDecisionDay, getWarningDay } from "@/lib/simulation";
+import { walrusBlobUrl } from "@/lib/walrus-links";
 
 const iconMap: Record<string, React.ElementType> = {
   BrainCircuit,
@@ -45,6 +46,10 @@ interface ProductOverviewProps {
   onOpenMemoryDrawer: () => void;
   onOpenArchitecture: () => void;
   walrusCount: number;
+  /** Durable memories across the app's public namespaces; null when the ledger is unavailable. */
+  publicMemoryCount: number | null;
+  /** A recorded learning run, shown while this profile has no outcomes of its own. */
+  referencePolicy: LearnedPolicy | null;
   checkpointSequence: number;
   
   // Interactive Simulator & Flight Track
@@ -148,6 +153,8 @@ export function ProductOverview({
   onOpenMemoryDrawer,
   onOpenArchitecture,
   walrusCount,
+  publicMemoryCount,
+  referencePolicy,
   checkpointSequence,
   currentDay,
   setCurrentDay,
@@ -264,7 +271,7 @@ export function ProductOverview({
       )}
 
         {/* Live Telemetry Bar */}
-        <div className="flex flex-wrap items-center gap-3 pt-2 text-xs font-mono telemetry-row">
+        <div className="grid grid-cols-1 gap-3 pt-2 text-xs font-mono sm:grid-cols-2 xl:grid-cols-4 telemetry-row">
           <div className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-xs">
             <span className={`h-2 w-2 rounded-full ${checkpointSequence ? "bg-emerald-500 animate-pulse" : "bg-slate-500"}`} />
             <span className="text-slate-500">Tatum Sui RPC:</span>
@@ -277,7 +284,9 @@ export function ProductOverview({
               onClick={onOpenMemoryDrawer}
               className="font-medium text-sky-300 hover:text-sky-200 transition-colors"
             >
-              {walrusCount} Verified Writes
+              {publicMemoryCount !== null
+                ? `${publicMemoryCount} memories${walrusCount > 0 ? ` · ${walrusCount} yours` : ""}`
+                : `${walrusCount} verified writes`}
             </button>
           </div>
 
@@ -542,11 +551,42 @@ export function ProductOverview({
                 <div className="floor-panel-head">
                   <span className="floor-panel-label">Learned usage floor</span>
                   <span className="floor-panel-value">
-                    {learnedPolicy.baselineFloor}% <span aria-hidden="true">→</span>{" "}
+                    {learnedPolicy.isLearned && (
+                      <>{learnedPolicy.baselineFloor}% <span aria-hidden="true">→</span>{" "}</>
+                    )}
                     <strong>{learnedPolicy.floor}%</strong>
                   </span>
                 </div>
-                <p className="floor-panel-note">{learnedPolicy.rationale}</p>
+                {!learnedPolicy.isLearned && referencePolicy ? (
+                  <>
+                    <div className="floor-run">
+                      <span className="floor-run-label">
+                        Recorded run · {referencePolicy.steps.length} call{referencePolicy.steps.length === 1 ? "" : "s"} recalled from Walrus Mainnet
+                      </span>
+                      <ol className="floor-run-steps">
+                        <li><span className="floor-run-floor">{referencePolicy.baselineFloor}%</span><span className="floor-run-meta">start</span><span /></li>
+                        {referencePolicy.steps.map((step, index) => {
+                          const href = walrusBlobUrl(step.blobId);
+                          const shortId = `${step.blobId.slice(0, 8)}…`;
+                          return (
+                            <li key={`${step.blobId}-${index}`}>
+                              <span className="floor-run-floor">{step.floor}%</span>
+                              <span className="floor-run-meta">{step.verdict === "reversed" ? "reversed" : "confirmed"}</span>
+                              <span className="floor-run-blob">
+                                {href ? <a href={href} target="_blank" rel="noreferrer" title={step.blobId}>{shortId}</a> : <code title={step.blobId}>{shortId}</code>}
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    </div>
+                    <p className="floor-panel-note">
+                      That is a saved run. Your profile has no calls yet, so it starts at {learnedPolicy.baselineFloor}%.
+                    </p>
+                  </>
+                ) : (
+                  <p className="floor-panel-note">{learnedPolicy.rationale}</p>
+                )}
                 {currentDay >= decisionDay && (
                   <div className="floor-panel-ask">
                     <span>Was this the right call?</span>

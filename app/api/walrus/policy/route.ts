@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recallLearnedPolicy, rememberPolicyOutcome } from "@/lib/walrus-memory";
 import { FLOOR_MAX, FLOOR_MIN } from "@/lib/policy-learning";
-import { INITIAL_SUBSCRIPTIONS } from "@/lib/mock-data";
+import { INITIAL_SUBSCRIPTIONS, baselineFloorFor as baselineFromRecord } from "@/lib/mock-data";
 import type { PolicyOutcome } from "@/lib/types";
 
 export const maxDuration = 60;
@@ -9,9 +9,7 @@ export const maxDuration = 60;
 const PROFILE_PATTERN = /^[a-z0-9-]{16,64}$/;
 
 function baselineFloorFor(subscriptionId: string): number {
-  const subscription = INITIAL_SUBSCRIPTIONS.find((item) => item.id === subscriptionId);
-  if (!subscription) return FLOOR_MIN;
-  return subscription.thresholdEfficiency;
+  return baselineFromRecord(subscriptionId, FLOOR_MIN);
 }
 
 /** Recall the learned floor for this profile. */

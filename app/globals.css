@@ -394,6 +394,8 @@ body { background: var(--landing-paper); color: var(--copy); }
 .overview-shell > section:not(.landing-hero) { width:min(1180px,calc(100% - 48px)); margin-left:auto; margin-right:auto; }
 .overview-shell > .cockpit-intro { width:min(1180px,calc(100% - 48px)); }
 .telemetry-row { color:var(--copy); padding-left:0; padding-right:0; }
+.overview-shell .telemetry-row { width:min(1180px,calc(100% - 48px)); margin-left:auto; margin-right:auto; padding-left:0; padding-right:0; }
+@media(max-width:760px) { .overview-shell .telemetry-row { width:calc(100% - 32px); } }
 .telemetry-row > div { background:#0d1736 !important; border-color:var(--line) !important; color:var(--copy) !important; box-shadow:none !important; border-radius:8px !important; padding:8px 12px !important; }
 .telemetry-row .text-slate-500 { color:var(--muted) !important; }
 .telemetry-row .text-slate-900 { color:#f1f5ff !important; }
@@ -600,6 +602,15 @@ body { background: var(--landing-paper); color: var(--copy); }
 .overview-shell .floor-panel-btn:active,.console-shell .floor-panel-btn:active { transform:scale(.99); }
 .overview-shell .floor-panel-btn:disabled,.console-shell .floor-panel-btn:disabled { opacity:.5; cursor:default; }
 .overview-shell .floor-panel-msg,.console-shell .floor-panel-msg { margin:0; color:var(--landing-lime); font-size:12px; }
+.overview-shell .floor-run,.console-shell .floor-run { display:flex; flex-direction:column; gap:10px; padding:12px; border:1px solid var(--line); border-radius:10px; background:#0b1430; }
+.overview-shell .floor-run-label,.console-shell .floor-run-label { color:#9fb0d0; font-size:11px; }
+.overview-shell .floor-run-steps,.console-shell .floor-run-steps { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+.overview-shell .floor-run-steps li,.console-shell .floor-run-steps li { display:grid; grid-template-columns:56px 1fr auto; align-items:baseline; gap:8px; }
+.overview-shell .floor-run-floor,.console-shell .floor-run-floor { font-family:var(--font-mono,ui-monospace,monospace); font-size:14px; color:#dce7fb; font-variant-numeric:tabular-nums; }
+.overview-shell .floor-run-steps li:last-child .floor-run-floor,.console-shell .floor-run-steps li:last-child .floor-run-floor { color:var(--landing-lime); }
+.overview-shell .floor-run-meta,.console-shell .floor-run-meta { font-size:11px; color:#8a9bbd; }
+.overview-shell .floor-run-blob a,.overview-shell .floor-run-blob code,.console-shell .floor-run-blob a,.console-shell .floor-run-blob code { font-family:var(--font-mono,ui-monospace,monospace); font-size:10px; color:#9fc3ff; }
+.overview-shell .floor-run-blob a:hover,.console-shell .floor-run-blob a:hover { text-decoration:underline; }
 
 /* Cockpit scrubber: one full-width control, with its checkpoints as labels. */
 .cockpit-scrubber-wrap { padding:4px 2px 0; }
