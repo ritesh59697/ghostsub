@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
 
     const result = await recallFromWalrus(query, body.profileId);
     return NextResponse.json(result);
-  } catch (err: any) {
+  } catch (err) {
     return NextResponse.json(
-      { error: err?.message || "Semantic recall failed" },
+      { error: (err instanceof Error && err.message) || "Semantic recall failed" },
       { status: 500 }
     );
   }

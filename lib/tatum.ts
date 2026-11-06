@@ -8,7 +8,7 @@ const TATUM_GRAPHQL_URL = TATUM_GATEWAY_URL.replace(/\/$/, "").replace(/\/graphq
  * GraphQL caller against Tatum's Sui Mainnet Gateway.
  * Directly authenticated with x-api-key.
  */
-export async function tatumGraphqlCall<T = any>(query: string): Promise<T> {
+export async function tatumGraphqlCall<T = unknown>(query: string): Promise<T> {
   if (!TATUM_API_KEY) throw new Error("Tatum API key is not configured on the server.");
 
   const res = await fetch(TATUM_GRAPHQL_URL, {
@@ -52,7 +52,7 @@ export async function getTatumSuiStatus(): Promise<TatumStatus> {
       rpcLatencyMs: latency,
       gateway: "sui-mainnet.gateway.tatum.io",
     };
-  } catch (err: any) {
+  } catch (err) {
     console.warn("Direct Tatum RPC ping failed, checking fallback:", err);
     return {
       online: false,

@@ -91,8 +91,8 @@ export default function DemoPage() {
       const data = await res.json();
       setTatumStatus(data);
       setTatumError(null);
-    } catch (err: any) {
-      setTatumError(err?.message || "Tatum RPC Offline");
+    } catch (err) {
+      setTatumError((err instanceof Error && err.message) || "Tatum RPC Offline");
     }
   };
 
@@ -103,8 +103,8 @@ export default function DemoPage() {
       const data = await res.json();
       setWalrusStatus(data);
       setWalrusError(null);
-    } catch (err: any) {
-      setWalrusError(err?.message || "Walrus Relayer Offline");
+    } catch (err) {
+      setWalrusError((err instanceof Error && err.message) || "Walrus Relayer Offline");
     }
   };
 
@@ -241,6 +241,7 @@ export default function DemoPage() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("tab") === "console" || window.location.hash === "#console") {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time sync from the URL on mount
         setActiveTab("console");
       }
     }
@@ -310,11 +311,11 @@ export default function DemoPage() {
       setStreamSuccessMsg(`Request preview recorded to Walrus Mainnet. No Sui payment was sent.`);
       setTimeout(() => setStreamSuccessMsg(null), 4000);
 
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setStreamError(err?.name === "AbortError"
+      setStreamError((err instanceof Error && err.name === "AbortError")
         ? "Walrus confirmation took too long. Check Verified Writes before retrying. No Sui payment was sent."
-        : err?.message || "Could not record the request preview. No Sui payment was sent.");
+        : (err instanceof Error && err.message) || "Could not record the request preview. No Sui payment was sent.");
     } finally {
       window.clearTimeout(requestTimer);
       setIsStreaming(false);
@@ -544,7 +545,7 @@ export default function DemoPage() {
                 </div>
 
                 <div className="rounded-lg border border-slate-200 bg-white p-3 text-xs text-slate-700 leading-relaxed font-sans">
-                  "{activeMemory.content}"
+                  &quot;{activeMemory.content}&quot;
                 </div>
 
                 <div className="rounded-lg border border-slate-200 bg-white p-3 text-xs space-y-2 font-mono">

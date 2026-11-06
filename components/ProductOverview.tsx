@@ -30,7 +30,7 @@ import {
   Activity
 } from "lucide-react";
 import { BillingPreference, Subscription, MemoryEntry, LearnedPolicy } from "@/lib/types";
-import { getUsageEfficiency, getDecisionDay } from "@/lib/simulation";
+import { getUsageEfficiency, getDecisionDay, getWarningDay } from "@/lib/simulation";
 
 const iconMap: Record<string, React.ElementType> = {
   BrainCircuit,
@@ -66,6 +66,81 @@ interface ProductOverviewProps {
   onRecordOutcome: (verdict: "confirmed" | "reversed") => void;
   outcomeSaving: boolean;
   outcomeMessage: string | null;
+}
+
+/** 30-day usage trace: efficiency against the learned floor, with the decision point marked. */
+function UsageTrace({
+  subscription,
+  currentDay,
+  floor,
+  decisionDay,
+}: {
+  subscription: Subscription;
+  currentDay: number;
+  floor: number;
+  decisionDay: number;
+}) {
+  const horizon = Math.max(1, subscription.daysMonitored);
+  const series = Array.from({ length: horizon }, (_, index) => getUsageEfficiency(index + 1, subscription));
+  const yMax = Math.max(10, Math.ceil(Math.max(floor, ...series) / 10) * 10);
+
+  const width = 480;
+  const height = 168;
+  const pad = { top: 14, right: 16, bottom: 26, left: 40 };
+  const innerW = width - pad.left - pad.right;
+  const innerH = height - pad.top - pad.bottom;
+  const baseY = pad.top + innerH;
+  const x = (day: number) => pad.left + ((day - 1) / Math.max(1, horizon - 1)) * innerW;
+  const y = (value: number) => pad.top + (1 - value / yMax) * innerH;
+
+  const line = series
+    .map((value, index) => `${index === 0 ? "M" : "L"}${x(index + 1).toFixed(1)} ${y(value).toFixed(1)}`)
+    .join(" ");
+  const area = `${line} L${x(horizon).toFixed(1)} ${baseY.toFixed(1)} L${x(1).toFixed(1)} ${baseY.toFixed(1)} Z`;
+
+  const cursorDay = Math.min(horizon, Math.max(1, currentDay));
+  const cursorValue = series[cursorDay - 1];
+  const gridValues = [0, yMax / 2, yMax];
+
+  return (
+    <figure className="usage-trace">
+      <div className="usage-trace-head">
+        <span>Efficiency across the window</span>
+        <span>
+          Day {cursorDay}: {cursorValue}% · floor {floor}%
+        </span>
+      </div>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={`Efficiency by day, against a ${floor}% floor, with the Day ${decisionDay} decision point marked.`}
+      >
+        {gridValues.map((value) => (
+          <g key={value}>
+            <line x1={pad.left} x2={width - pad.right} y1={y(value)} y2={y(value)} className="usage-trace-grid" />
+            <text x={pad.left - 8} y={y(value) + 4} textAnchor="end" className="usage-trace-label">
+              {Math.round(value)}%
+            </text>
+          </g>
+        ))}
+        <path d={area} className="usage-trace-area" />
+        <line x1={pad.left} x2={width - pad.right} y1={y(floor)} y2={y(floor)} className="usage-trace-floor" />
+        <text x={width - pad.right} y={y(floor) - 6} textAnchor="end" className="usage-trace-floor-label">
+          Floor {floor}%
+        </text>
+        <line x1={x(decisionDay)} x2={x(decisionDay)} y1={pad.top} y2={baseY} className="usage-trace-decision" />
+        <text x={x(decisionDay) + 6} y={pad.top + 10} className="usage-trace-decision-label">
+          Decision · D{decisionDay}
+        </text>
+        <path d={line} className="usage-trace-line" />
+        <circle cx={x(cursorDay)} cy={y(cursorValue)} r={4.5} className="usage-trace-cursor" />
+        <text x={pad.left} y={height - 6} className="usage-trace-label">Day 1</text>
+        <text x={width - pad.right} y={height - 6} textAnchor="end" className="usage-trace-label">
+          Day {horizon}
+        </text>
+      </svg>
+    </figure>
+  );
 }
 
 export function ProductOverview({
@@ -124,6 +199,19 @@ export function ProductOverview({
   const isFlipped = currentDay >= decisionDay && policyPreference === "keep_access";
   const currentEfficiency = getUsageEfficiency(currentDay, selectedSub);
   const isBreached = currentEfficiency < usageFloor;
+  // Simulation horizon and checkpoints come from the subscription, not fixed day numbers.
+  const horizon = Math.max(1, selectedSub.daysMonitored);
+  const warningDay = getWarningDay(selectedSub);
+  const scrubberCheckpoints = [
+    { day: 1, label: "Start" },
+    { day: warningDay, label: `Warning · D${warningDay}`, variant: "warning" },
+    { day: decisionDay, label: `Decision · D${decisionDay}` },
+    { day: horizon, label: "Audit" },
+  ];
+  // Position along the track as a percentage of the scrubber's range.
+  const scrubberPercent = (day: number) => ((day - 1) / Math.max(1, horizon - 1)) * 100;
+  // Native range thumbs sit inside the track by half their width (10px) at each end.
+  const thumbOffset = (percent: number) => `calc(${percent}% + ${10 - percent * 0.2}px)`;
 
   const totalSavedCurrent = subscriptions.reduce((acc, s) => {
     if (!isFlipped) return acc;
@@ -212,7 +300,7 @@ export function ProductOverview({
         <div className="border-b border-slate-200 bg-slate-50/80 px-6 py-4.5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Timeline Controls */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
@@ -236,8 +324,8 @@ export function ProductOverview({
               </div>
 
               <div className="flex items-baseline gap-2">
-                <span className="font-mono text-base font-medium tabular-nums text-slate-900">
-                  Day {currentDay} <span className="text-slate-400 font-normal text-xs">/ 30</span>
+                <span className="whitespace-nowrap font-mono text-base font-medium tabular-nums text-slate-900">
+                  Day {currentDay} <span className="text-slate-400 font-normal text-xs">/ {horizon}</span>
                 </span>
                 {currentDay < decisionDay ? (
                   <span className="tag tag-neutral text-[11px]">
@@ -250,57 +338,49 @@ export function ProductOverview({
                 )}
               </div>
             </div>
+          </div>
 
-            {/* Range Scrubber with Day 14 Tick */}
-            <div className="flex-1 max-w-lg mx-2 flex items-center gap-3">
-              <span className="font-mono text-[11px] text-slate-400 font-medium shrink-0">Day 1</span>
-              <div className="relative w-full flex items-center">
-                <div 
-                  className="absolute top-1/2 -translate-y-1/2 h-4 w-1 rounded-full bg-rose-500 pointer-events-none z-10"
-                  style={{ left: `${(14 / 30) * 100}%` }}
-                  title="Day 14 Decommissioning Threshold"
-                />
-                <input
-                  type="range"
-                  min="1"
-                  max="30"
-                  value={currentDay}
-                  onChange={(e) => {
-                    setIsPlaying(false);
-                    setCurrentDay(Number(e.target.value));
-                  }}
-                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-200 focus:outline-none"
-                />
-              </div>
-              <span className="font-mono text-[11px] text-slate-400 font-medium shrink-0">Day 30</span>
+          {/* Full-width scrubber: the checkpoints double as its labels */}
+          <div className="cockpit-scrubber-wrap">
+            <div className="relative">
+              <span
+                className="cockpit-decision-marker"
+                style={{ left: thumbOffset(scrubberPercent(decisionDay)) }}
+                title={`Decision point · Day ${decisionDay}`}
+              />
+              <input
+                type="range"
+                min={1}
+                max={horizon}
+                value={currentDay}
+                aria-label="Simulation day"
+                onChange={(e) => {
+                  setIsPlaying(false);
+                  setCurrentDay(Number(e.target.value));
+                }}
+                className="cockpit-scrubber"
+                style={{
+                  background: `linear-gradient(to right, var(--landing-lime) ${scrubberPercent(currentDay)}%, #27385e ${scrubberPercent(currentDay)}%)`,
+                }}
+              />
             </div>
-
-            {/* Quick Presets */}
-            <div className="flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono">
-              {[
-                { day: 1, label: "Day 1 (Normal)" },
-                { day: 9, label: "Day 9 (Warning)" },
-                { day: 14, label: "Day 14 (Decision)" },
-                { day: 30, label: "Day 30 (Audit)" },
-              ].map((m) => {
-                const isActive = currentDay === m.day;
+            <div className="cockpit-ticks">
+              {scrubberCheckpoints.map((checkpoint, index) => {
+                const isActive = currentDay === checkpoint.day;
+                const isDecision = checkpoint.day === decisionDay;
+                const edge = index === 0 ? "translateX(0)" : index === scrubberCheckpoints.length - 1 ? "translateX(-100%)" : "translateX(-50%)";
                 return (
                   <button
-                    key={m.day}
+                    key={`${checkpoint.label}-${checkpoint.day}`}
                     type="button"
                     onClick={() => {
                       setIsPlaying(false);
-                      setCurrentDay(m.day);
+                      setCurrentDay(checkpoint.day);
                     }}
-                    className={`rounded-md border px-2.5 py-1 transition-all whitespace-nowrap font-medium ${
-                      isActive
-                        ? m.day === 14
-                          ? "border-rose-400 bg-rose-50 text-rose-900 font-medium"
-                          : "border-slate-800 bg-slate-900 text-white font-medium"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 shadow-2xs"
-                    }`}
+                    className={`cockpit-tick${isActive ? " is-active" : ""}${isDecision ? " is-decision" : ""}${checkpoint.variant === "warning" ? " is-warning" : ""}`}
+                    style={{ left: thumbOffset(scrubberPercent(checkpoint.day)), transform: edge }}
                   >
-                    {m.label}
+                    {checkpoint.label}
                   </button>
                 );
               })}
@@ -312,7 +392,8 @@ export function ProductOverview({
         <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 bg-white">
           
               {/* Left: Monitored service */}
-          <div className="lg:col-span-7 overflow-x-auto no-scrollbar">
+          <div className="lg:col-span-7 flex min-w-0 flex-col">
+          <div className="overflow-x-auto no-scrollbar">
             <table className="w-full text-left text-xs">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/70 text-[11px] font-mono font-medium text-slate-500 uppercase tracking-wider">
@@ -392,6 +473,8 @@ export function ProductOverview({
                 })}
               </tbody>
             </table>
+          </div>
+          <UsageTrace subscription={selectedSub} currentDay={currentDay} floor={usageFloor} decisionDay={decisionDay} />
           </div>
 
           {/* Right: Selected Service Inspector & Sui Execution */}
