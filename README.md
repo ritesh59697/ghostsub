@@ -7,6 +7,8 @@
 [![Sui Network](https://img.shields.io/badge/Sui-Mainnet-cyan?style=flat-square)](https://suiscan.xyz)
 [![x402 Protocol](https://img.shields.io/badge/MPP-HTTP%20402%20Micropayments-violet?style=flat-square)](https://github.com/mysten-incubation)
 
+**▶ Demo video:** https://youtu.be/9-JZpD6dLTU · **Live demo:** https://ghostsub-cyan.vercel.app/demo
+
 ---
 
 ## 💡 The 1-Sentence Hook
@@ -142,6 +144,8 @@ This build does not sign or broadcast a payment. A live flow still needs a real 
 
 ## 🎬 3-Minute Demo Video Script
 
+Watch the recorded walkthrough: https://youtu.be/9-JZpD6dLTU
+
 The current recording plan is in [`DEMO_SCRIPT.md`](./DEMO_SCRIPT.md). It includes the synthetic-data disclosure and avoids making an extra Walrus write during recording.
 
 | Timestamp | Screen Action | Voiceover Audio |
@@ -186,5 +190,5 @@ npm run dev
 - [x] Publish the blog post
 - [x] Replace its demo placeholder with the public demo URL after deployment: https://ghostsub-cyan.vercel.app/demo
 - [x] Deploy the demo and verify Tatum RPC and Walrus health responses in Production: https://ghostsub-cyan.vercel.app/demo
-- [ ] Record and publish the 2–3 minute walkthrough
+- [x] Record and publish the 2–3 minute walkthrough: https://youtu.be/9-JZpD6dLTU
 - [ ] Optional: build primarily with Tatum AI Builder to compete for its special award
