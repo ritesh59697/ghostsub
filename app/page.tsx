@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Activity, ArrowRight, Database, ShieldCheck, Zap } from "lucide-react";
+import { Activity, ArrowRight, ArrowUpRight, Database, ShieldCheck, Zap } from "lucide-react";
 import { GhostSubMark } from "@/components/GhostSubMark";
+import { REPO_URL } from "@/lib/repo-link";
 
 const stages = [
   {
@@ -41,6 +42,9 @@ export default function Home() {
           <nav className="primary-nav" aria-label="Main navigation">
             <a href="#how-it-works">How it works</a>
             <a href="#infrastructure">Infrastructure</a>
+            {REPO_URL && (
+              <a href={REPO_URL} target="_blank" rel="noreferrer" className="nav-repo">GitHub <ArrowUpRight size={12} aria-hidden="true" /></a>
+            )}
           </nav>
           <div className="nav-actions">
             <span className="nav-status"><i /> Sui Mainnet</span>
@@ -123,6 +127,9 @@ export default function Home() {
           <GhostSubMark className="brand-symbol" /><span>GhostSub</span>
         </Link>
         <span>Subscription decisions that learn from you.</span>
+        {REPO_URL && (
+          <a href={REPO_URL} target="_blank" rel="noreferrer" className="footer-repo-link">Source on GitHub <ArrowUpRight size={12} aria-hidden="true" /></a>
+        )}
         <Link href="/demo" className="footer-demo-link">Try the demo <ArrowRight size={13} aria-hidden="true" /></Link>
       </footer>
     </div>
