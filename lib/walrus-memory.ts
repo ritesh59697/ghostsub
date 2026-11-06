@@ -29,7 +29,10 @@ function getMemWalClient(): MemWal | null {
 const runtimeMemories: MemoryEntry[] = [];
 
 /**
- * Fetch health & status of the Walrus Memory Mainnet relayer
+ * Fetch health & status of the Walrus Memory Mainnet relayer.
+ *
+ * Deliberately carries no memory count: a per-instance count resets on every
+ * serverless cold start. The durable Mainnet count is served by /api/ledger.
  */
 export async function getWalrusStatus(): Promise<WalrusStatus> {
   if (!getMemWalClient()) {
@@ -39,7 +42,6 @@ export async function getWalrusStatus(): Promise<WalrusStatus> {
       relayerUrl: WALRUS_RELAYER_URL,
       accountId: MEMWAL_ACCOUNT_ID,
       agentId: MEMWAL_AGENT_ID,
-      totalMemoriesStored: 0,
     };
   }
 
@@ -56,7 +58,6 @@ export async function getWalrusStatus(): Promise<WalrusStatus> {
         relayerUrl: WALRUS_RELAYER_URL,
         accountId: MEMWAL_ACCOUNT_ID,
         agentId: MEMWAL_AGENT_ID,
-        totalMemoriesStored: runtimeMemories.filter((memory) => memory.isMainnetVerified).length,
       };
     }
   } catch (err) {
@@ -69,7 +70,6 @@ export async function getWalrusStatus(): Promise<WalrusStatus> {
     relayerUrl: WALRUS_RELAYER_URL,
     accountId: MEMWAL_ACCOUNT_ID,
     agentId: MEMWAL_AGENT_ID,
-    totalMemoriesStored: runtimeMemories.filter((memory) => memory.isMainnetVerified).length,
   };
 }
 

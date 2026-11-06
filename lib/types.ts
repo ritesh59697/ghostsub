@@ -97,5 +97,4 @@ export interface WalrusStatus {
   relayerUrl: string;
   accountId: string;
   agentId: string;
-  totalMemoriesStored: number;
 }
