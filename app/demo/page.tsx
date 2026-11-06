@@ -13,6 +13,7 @@ import {
   Terminal,
   Database,
   ArrowRight,
+  ArrowUpRight,
   ShieldCheck,
   RefreshCw,
   Cpu,
@@ -32,6 +33,7 @@ import { MemoryDrawer } from "@/components/MemoryDrawer";
 import { ProductOverview } from "@/components/ProductOverview";
 import { GhostSubMark } from "@/components/GhostSubMark";
 import { getDemoProfileId } from "@/lib/demo-profile";
+import { REPO_URL } from "@/lib/repo-link";
 import { getUsageEfficiency, getDecisionDay } from "@/lib/simulation";
 import { learnPolicyFloor, recommendForUsage } from "@/lib/policy-learning";
 import Link from "next/link";
@@ -387,6 +389,9 @@ export default function DemoPage() {
             <button type="button" onClick={() => setActiveTab("console")}>Console</button>
             <button type="button" onClick={() => setIsMppTerminalOpen(true)}>x402 Wire</button>
             <button type="button" onClick={() => setIsArchitectureOpen(true)}>Architecture</button>
+            {REPO_URL && (
+              <a href={REPO_URL} target="_blank" rel="noreferrer" className="nav-repo">GitHub <ArrowUpRight size={12} aria-hidden="true" /></a>
+            )}
           </nav>
           <div className="nav-actions">
             <span className="nav-status"><i /> Sui Mainnet</span>
