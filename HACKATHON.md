@@ -8,6 +8,7 @@
 - **Project:** GhostSub, a memory-aware subscription finance prototype
 - **Repository:** https://github.com/ritesh59697/ghostsub
 - **Public demo:** https://ghostsub-cyan.vercel.app/demo
+- **Demo video:** https://youtu.be/9-JZpD6dLTU
 
 ## Requirements from the official brief
 
@@ -55,5 +56,5 @@ The official page lists three $500 special awards: Best Walrus Memory, Best Tatu
 - [x] Deploy the app and confirm Tatum latest-checkpoint and Walrus health responses in Production
 - [x] Publish the blog
 - [x] Add the public demo URL to the blog and project notes
-- [ ] Record and publish a 2–3 minute walkthrough
+- [x] Record and publish a 2–3 minute walkthrough: https://youtu.be/9-JZpD6dLTU
 - [ ] Final review against the current official rules
